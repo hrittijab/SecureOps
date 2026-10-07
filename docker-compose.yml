@@ -1,0 +1,25 @@
+services:
+
+  auth-db:
+    image: postgres:17
+    container_name: secureops-auth-db
+
+    environment:
+      POSTGRES_DB: secureops_auth
+      POSTGRES_USER: secureops
+      POSTGRES_PASSWORD: secureops_dev
+
+    ports:
+      - "5433:5432"
+
+    volumes:
+      - auth-db-data:/var/lib/postgresql/data
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U secureops -d secureops_auth"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  auth-db-data:
