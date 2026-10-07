@@ -100,4 +100,21 @@ public class User {
     public OffsetDateTime getUpdatedAt() {
         return updatedAt;
     }
+    public void recordFailedLogin() {
+    this.failedLoginAttempts++;
+}
+
+    public void resetFailedLoginAttempts() {
+        this.failedLoginAttempts = 0;
+        this.lockedUntil = null;
+    }
+
+    public void lockUntil(OffsetDateTime lockedUntil) {
+        this.lockedUntil = lockedUntil;
+    }
+
+    public boolean isLocked() {
+        return lockedUntil != null
+                && lockedUntil.isAfter(OffsetDateTime.now());
+    }
 }

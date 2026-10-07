@@ -1,8 +1,11 @@
 package com.secureops.auth.auth;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -20,5 +23,20 @@ public class AuthController {
             @Valid @RequestBody RegisterRequest request
     ) {
         return authService.register(request);
+    }
+
+    @PostMapping("/login")
+    public LoginResponse login(
+            @Valid @RequestBody LoginRequest request,
+            HttpServletRequest httpRequest
+    ) {
+        String sourceIp = httpRequest.getRemoteAddr();
+        UUID requestId = UUID.randomUUID();
+
+        return authService.login(
+                request,
+                sourceIp,
+                requestId
+        );
     }
 }
