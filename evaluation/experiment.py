@@ -7,7 +7,8 @@ import psycopg
 
 from attacks.runner import (
     run_auth_bruteforce,
-    run_benign_auth
+    run_benign_auth,
+    run_password_spray
 )
 from detection.runner import run_detection
 
@@ -28,7 +29,13 @@ def get_database_url() -> str:
     return database_url
 
 
-def reset_lab(email: str) -> None:
+def reset_lab() -> None:
+    """
+    Reset authentication state and telemetry before each experiment.
+
+    This is intentionally a lab-only operation so every scenario starts
+    from a clean, reproducible state.
+    """
     database_url = get_database_url()
 
     with psycopg.connect(database_url) as connection:
@@ -39,9 +46,7 @@ def reset_lab(email: str) -> None:
                 UPDATE users
                 SET failed_login_attempts = 0,
                     locked_until = NULL
-                WHERE email = %s
-                """,
-                (email,)
+                """
             )
 
             cursor.execute(
@@ -56,6 +61,9 @@ def execute_scenario(scenario: dict) -> dict:
 
     if scenario_id.startswith("AUTH-BRUTEFORCE"):
         return run_auth_bruteforce(scenario)
+
+    if scenario_id.startswith("AUTH-PASSWORD-SPRAY"):
+        return run_password_spray(scenario)
 
     if scenario_id.startswith("BENIGN-AUTH"):
         return run_benign_auth(scenario)
@@ -133,9 +141,7 @@ def main():
 
     print("\n[1/4] Resetting lab state...")
 
-    reset_lab(
-        scenario["target"]["email"]
-    )
+    reset_lab()
 
     print("[2/4] Executing scenario...")
 

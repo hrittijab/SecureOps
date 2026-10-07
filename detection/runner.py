@@ -3,7 +3,12 @@ import os
 
 import psycopg
 
-from detection.rules.brute_force import detect
+from detection.rules.brute_force import (
+    detect as detect_brute_force
+)
+from detection.rules.password_spray import (
+    detect as detect_password_spray
+)
 
 
 def get_database_url() -> str:
@@ -51,7 +56,16 @@ def load_security_events() -> list[dict]:
 
 def run_detection() -> tuple[list[dict], list[dict]]:
     events = load_security_events()
-    alerts = detect(events)
+
+    alerts = []
+
+    alerts.extend(
+        detect_brute_force(events)
+    )
+
+    alerts.extend(
+        detect_password_spray(events)
+    )
 
     return events, alerts
 
@@ -59,13 +73,15 @@ def run_detection() -> tuple[list[dict], list[dict]]:
 def serialize_alert(alert: dict) -> dict:
     result = alert.copy()
 
-    result["first_seen"] = (
-        result["first_seen"].isoformat()
-    )
+    if "first_seen" in result:
+        result["first_seen"] = (
+            result["first_seen"].isoformat()
+        )
 
-    result["last_seen"] = (
-        result["last_seen"].isoformat()
-    )
+    if "last_seen" in result:
+        result["last_seen"] = (
+            result["last_seen"].isoformat()
+        )
 
     return result
 

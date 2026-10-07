@@ -1,0 +1,48 @@
+{
+  "scenario_count": 3,
+  "results": [
+    {
+      "scenario_id": "AUTH-BRUTEFORCE-001",
+      "attempt_count": 5,
+      "expected_rule_id": "BRUTE_FORCE_001",
+      "expected_alert": true,
+      "actual_alert": true,
+      "event_count": 6,
+      "alert_count": 1,
+      "matching_alert_count": 1,
+      "result": "PASS",
+      "threshold_time_seconds": 2.915
+    },
+    {
+      "scenario_id": "AUTH-PASSWORD-SPRAY-001",
+      "attempt_count": 5,
+      "expected_rule_id": "PASSWORD_SPRAY_001",
+      "expected_alert": true,
+      "actual_alert": true,
+      "event_count": 5,
+      "alert_count": 1,
+      "matching_alert_count": 1,
+      "result": "PASS",
+      "threshold_time_seconds": 2.995
+    },
+    {
+      "scenario_id": "BENIGN-AUTH-001",
+      "attempt_count": 3,
+      "expected_rule_id": "BRUTE_FORCE_001",
+      "expected_alert": false,
+      "actual_alert": false,
+      "event_count": 3,
+      "alert_count": 0,
+      "matching_alert_count": 0,
+      "result": "PASS"
+    }
+  ],
+  "metrics": {
+    "true_positives": 2,
+    "true_negatives": 1,
+    "false_positives": 0,
+    "false_negatives": 0,
+    "attack_detection_rate": 1.0,
+    "false_positive_rate": 0.0
+  }
+}
