@@ -1,0 +1,24 @@
+{
+  "id": "BENIGN-AUTH-001",
+  "name": "Benign Authentication With Mistyped Passwords",
+  "description": "Simulates a legitimate user entering two incorrect passwords before successfully authenticating.",
+  "category": "benign_authentication",
+
+  "target": {
+    "endpoint": "/api/auth/login",
+    "email": "alice@secureops.local"
+  },
+
+  "traffic": {
+    "incorrect_passwords": [
+      "SecureOpsPass123",
+      "SecureOpsPass123!!"
+    ],
+    "correct_password": "SecureOpsPass123!"
+  },
+
+  "evaluation": {
+    "expected_rule_id": "BRUTE_FORCE_001",
+    "expected_alert": false
+  }
+}

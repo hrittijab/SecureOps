@@ -3,10 +3,12 @@
   "name": "Repeated Failed Login Against Single Account",
   "description": "Simulates repeated password guesses against a known user account.",
   "category": "credential_attack",
+
   "target": {
     "endpoint": "/api/auth/login",
     "email": "alice@secureops.local"
   },
+
   "attack": {
     "passwords": [
       "Password123!",
@@ -16,9 +18,16 @@
       "IncorrectPassword!"
     ]
   },
+
   "expected_indicators": [
     "multiple LOGIN_FAILURE events for the same account",
     "ACCOUNT_LOCKED event after the configured failure threshold"
   ],
-  "expected_outcome": "ACCOUNT_LOCKED"
+
+  "expected_outcome": "ACCOUNT_LOCKED",
+
+  "evaluation": {
+    "expected_rule_id": "BRUTE_FORCE_001",
+    "expected_alert": true
+  }
 }

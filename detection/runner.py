@@ -1,6 +1,5 @@
 import json
 import os
-import sys
 
 import psycopg
 
@@ -11,17 +10,14 @@ def get_database_url() -> str:
     database_url = os.getenv("DETECTION_DB_URL")
 
     if not database_url:
-        print(
-            "[Configuration Error] DETECTION_DB_URL is not set.",
-            file=sys.stderr
+        raise RuntimeError(
+            "DETECTION_DB_URL environment variable is not set."
         )
-        sys.exit(1)
 
     return database_url
 
 
 def load_security_events() -> list[dict]:
-
     query = """
         SELECT
             event_type,
@@ -40,7 +36,6 @@ def load_security_events() -> list[dict]:
 
     with psycopg.connect(database_url) as connection:
         with connection.cursor() as cursor:
-
             cursor.execute(query)
 
             columns = [
@@ -54,8 +49,14 @@ def load_security_events() -> list[dict]:
             ]
 
 
-def serialize_alert(alert: dict) -> dict:
+def run_detection() -> tuple[list[dict], list[dict]]:
+    events = load_security_events()
+    alerts = detect(events)
 
+    return events, alerts
+
+
+def serialize_alert(alert: dict) -> dict:
     result = alert.copy()
 
     result["first_seen"] = (
@@ -70,15 +71,17 @@ def serialize_alert(alert: dict) -> dict:
 
 
 def main():
+    try:
+        events, alerts = run_detection()
 
-    events = load_security_events()
+    except RuntimeError as exc:
+        print(f"[Configuration Error] {exc}")
+        raise SystemExit(1)
 
     print(
         f"[SecureOps Detection Engine] "
         f"Loaded {len(events)} security events."
     )
-
-    alerts = detect(events)
 
     if not alerts:
         print("[Detection] No alerts generated.")
