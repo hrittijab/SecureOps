@@ -1,0 +1,40 @@
+# Java
+target/
+*.class
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Node
+node_modules/
+dist/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test / coverage artifacts
+coverage/
+.coverage
+htmlcov/
+
+# Generated security data
+data/generated/
+results/tmp/
