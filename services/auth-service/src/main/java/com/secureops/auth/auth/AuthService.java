@@ -73,6 +73,7 @@ public class AuthService {
         User user = userRepository.findByEmail(normalizedEmail)
                 .orElse(null);
 
+        // Unknown account
         if (user == null) {
 
             securityEventService.record(
@@ -90,6 +91,7 @@ public class AuthService {
             );
         }
 
+        // Disabled account
         if (!user.isEnabled()) {
 
             securityEventService.record(
@@ -107,6 +109,7 @@ public class AuthService {
             );
         }
 
+        // Already locked account
         if (user.isLocked()) {
 
             securityEventService.record(
@@ -124,6 +127,7 @@ public class AuthService {
             );
         }
 
+        // Incorrect password
         if (!passwordEncoder.matches(
                 request.password(),
                 user.getPasswordHash()
@@ -131,6 +135,19 @@ public class AuthService {
 
             user.recordFailedLogin();
 
+            // Every incorrect password is a failed login,
+            // including the attempt that causes account lockout.
+            securityEventService.record(
+                    "LOGIN_FAILURE",
+                    user.getId(),
+                    user.getEmail(),
+                    sourceIp,
+                    requestId,
+                    "FAILURE",
+                    "INVALID_CREDENTIALS"
+            );
+
+            // Lock account when threshold is reached.
             if (user.getFailedLoginAttempts() >= MAX_FAILED_ATTEMPTS) {
 
                 user.lockUntil(
@@ -146,18 +163,6 @@ public class AuthService {
                         "FAILURE",
                         "TOO_MANY_FAILED_ATTEMPTS"
                 );
-
-            } else {
-
-                securityEventService.record(
-                        "LOGIN_FAILURE",
-                        user.getId(),
-                        user.getEmail(),
-                        sourceIp,
-                        requestId,
-                        "FAILURE",
-                        "INVALID_CREDENTIALS"
-                );
             }
 
             throw new AuthenticationFailedException(
@@ -165,6 +170,7 @@ public class AuthService {
             );
         }
 
+        // Successful authentication resets previous failures.
         user.resetFailedLoginAttempts();
 
         securityEventService.record(
