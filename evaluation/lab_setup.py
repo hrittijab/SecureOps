@@ -26,7 +26,16 @@ LAB_USERS = [
     {
         "email": "spray05@secureops.local",
         "password": "SecureOpsPass123!"
-    }
+    },
+    {"email": "spray06@secureops.local",
+     "password": "SecureOpsPass123!"
+     },
+    {"email": "spray07@secureops.local",
+     "password": "SecureOpsPass123!"
+     },
+    {"email": "spray08@secureops.local",
+     "password": "SecureOpsPass123!"
+     }
 ]
 
 

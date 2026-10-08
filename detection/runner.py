@@ -10,6 +10,10 @@ from detection.rules.password_spray import (
     detect as detect_password_spray
 )
 
+from detection.rules.slow_password_spray import (
+    detect as detect_slow_password_spray
+)
+
 
 def get_database_url() -> str:
     database_url = os.getenv("DETECTION_DB_URL")
@@ -65,6 +69,10 @@ def run_detection() -> tuple[list[dict], list[dict]]:
 
     alerts.extend(
         detect_password_spray(events)
+    )
+
+    alerts.extend(
+        detect_slow_password_spray(events)
     )
 
     return events, alerts

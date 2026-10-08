@@ -11,7 +11,7 @@
       "alert_count": 1,
       "matching_alert_count": 1,
       "result": "PASS",
-      "threshold_time_seconds": 2.964
+      "threshold_time_seconds": 2.898
     },
     {
       "scenario_id": "AUTH-PASSWORD-SPRAY-001",
@@ -23,7 +23,7 @@
       "alert_count": 1,
       "matching_alert_count": 1,
       "result": "PASS",
-      "threshold_time_seconds": 2.944
+      "threshold_time_seconds": 3.743
     },
     {
       "scenario_id": "BENIGN-AUTH-001",

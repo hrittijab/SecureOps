@@ -1,0 +1,19 @@
+{
+  "scenario_id": "BOLA-PROFILE-001",
+  "mode": "remediated",
+  "timestamp": "2026-10-08T19:25:21.725578+00:00",
+  "attack_http_status": 403,
+  "legitimate_http_status": 200,
+  "authorization_event_count": 2,
+  "bola_alert_count": 0,
+  "checks": {
+    "attack_blocked": true,
+    "no_target_data_exposed": true,
+    "denied_event_recorded": true,
+    "no_successful_bola_alert": true,
+    "legitimate_access_preserved": true,
+    "authorized_event_recorded": true
+  },
+  "result": "PASS",
+  "alerts": []
+}

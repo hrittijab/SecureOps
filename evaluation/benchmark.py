@@ -17,8 +17,19 @@ RESULTS_FILE = RESULTS_DIRECTORY / "security_benchmark.json"
 
 
 def discover_scenarios() -> list[Path]:
+    """
+    Discover scenarios supported by the authentication
+    detection benchmark.
+
+    BOLA scenarios are evaluated separately by
+    evaluation.bola_experiment because they validate
+    remediation behavior rather than the auth detection
+    pipeline.
+    """
     return sorted(
-        SCENARIO_DIRECTORY.glob("*.json")
+        path
+        for path in SCENARIO_DIRECTORY.glob("*.json")
+        if not path.name.startswith("bola_")
     )
 
 
@@ -29,8 +40,8 @@ def run_scenario(path: Path) -> dict:
     print(f"Running: {scenario['id']}")
     print("=" * 70)
 
-    # Every experiment starts from clean authentication
-    # state and an empty security-event table.
+    # Every authentication experiment starts from clean
+    # authentication state and an empty security-event table.
     reset_lab()
 
     execution_result = execute_scenario(scenario)
@@ -41,7 +52,7 @@ def run_scenario(path: Path) -> dict:
         scenario,
         execution_result,
         events,
-        alerts
+        alerts,
     )
 
 
@@ -94,18 +105,18 @@ def calculate_metrics(results: list[dict]) -> dict:
         "false_negatives": false_negative,
         "attack_detection_rate": round(
             detection_rate,
-            4
+            4,
         ),
         "false_positive_rate": round(
             false_positive_rate,
-            4
-        )
+            4,
+        ),
     }
 
 
 def print_results(
     results: list[dict],
-    metrics: dict
+    metrics: dict,
 ) -> None:
     print("\n")
     print("=" * 70)
@@ -188,7 +199,7 @@ def print_results(
 
 def save_results(
     results: list[dict],
-    metrics: dict
+    metrics: dict,
 ) -> None:
     RESULTS_DIRECTORY.mkdir(
         exist_ok=True
@@ -197,17 +208,17 @@ def save_results(
     output = {
         "scenario_count": len(results),
         "results": results,
-        "metrics": metrics
+        "metrics": metrics,
     }
 
     with RESULTS_FILE.open(
         "w",
-        encoding="utf-8"
+        encoding="utf-8",
     ) as file:
         json.dump(
             output,
             file,
-            indent=2
+            indent=2,
         )
 
     print(
@@ -221,7 +232,8 @@ def main():
     if not scenario_paths:
         print(
             "[Benchmark Error] "
-            "No scenarios found in attacks/scenarios."
+            "No supported authentication scenarios "
+            "found in attacks/scenarios."
         )
         sys.exit(1)
 
@@ -245,12 +257,12 @@ def main():
 
     print_results(
         results,
-        metrics
+        metrics,
     )
 
     save_results(
         results,
-        metrics
+        metrics,
     )
 
     passed = sum(

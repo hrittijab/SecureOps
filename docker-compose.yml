@@ -20,6 +20,22 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
-
+  user-db:
+    image: postgres:17
+    container_name: secureops-user-db
+    environment:
+      POSTGRES_DB: secureops_user
+      POSTGRES_USER: secureops
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5434:5432"
+    volumes:
+      - user-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U secureops -d secureops_user"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 volumes:
   auth-db-data:
+  user-db-data:
