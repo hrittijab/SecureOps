@@ -239,7 +239,10 @@ def main():
     if scenario_id.startswith("AUTH-BRUTEFORCE"):
         result = run_auth_bruteforce(scenario)
 
-    elif scenario_id.startswith("AUTH-PASSWORD-SPRAY"):
+    elif (
+        scenario_id.startswith("AUTH-PASSWORD-SPRAY")
+        or scenario_id.startswith("BENIGN-PASSWORD-SPRAY")
+    ):
         result = run_password_spray(scenario)
 
     elif scenario_id.startswith("BENIGN-AUTH"):

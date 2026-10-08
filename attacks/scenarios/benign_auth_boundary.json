@@ -1,0 +1,23 @@
+{
+  "id": "BENIGN-AUTH-002",
+  "name": "Authentication Failures Below Detection Threshold",
+  "description": "Simulates a user entering four incorrect passwords without reaching the brute-force detection threshold.",
+  "category": "benign_authentication",
+  "target": {
+    "endpoint": "/api/auth/login",
+    "email": "alice@secureops.local"
+  },
+  "traffic": {
+    "incorrect_passwords": [
+      "WrongPassword1!",
+      "WrongPassword2!",
+      "WrongPassword3!",
+      "WrongPassword4!"
+    ],
+    "correct_password": "SecureOpsPass123!"
+  },
+  "evaluation": {
+    "expected_rule_id": "BRUTE_FORCE_001",
+    "expected_alert": false
+  }
+}
