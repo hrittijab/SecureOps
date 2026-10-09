@@ -1,0 +1,131 @@
+{
+  "experiment": "multi_stage_attack_correlation",
+  "synthetic_data": true,
+  "auth_events": 13,
+  "authorization_events": 1,
+  "detected_rules": [
+    "BOLA_001",
+    "BRUTE_FORCE_001",
+    "PASSWORD_SPRAY_001",
+    "SLOW_PASSWORD_SPRAY_001"
+  ],
+  "checks": {
+    "all_attack_types_detected": true,
+    "single_correlated_incident": true,
+    "cross_service_correlation": true,
+    "critical_severity": true
+  },
+  "passed": true,
+  "incidents": [
+    {
+      "incident_id": "a87fb5d1-73cc-5d89-8632-73d8e0293159",
+      "source_ip": "192.0.2.25",
+      "severity": "CRITICAL",
+      "risk_score": 100,
+      "alert_count": 4,
+      "rules": [
+        "BOLA_001",
+        "BRUTE_FORCE_001",
+        "PASSWORD_SPRAY_001",
+        "SLOW_PASSWORD_SPRAY_001"
+      ],
+      "services": [
+        "auth-service",
+        "user-service"
+      ],
+      "first_seen": "2026-10-08T10:00:20+00:00",
+      "last_seen": "2026-10-08T10:06:00+00:00",
+      "event_ids": [
+        "04c020af-e8ac-4089-8d4a-1ccac62f9de3",
+        "1b4f8adb-d478-40c6-a35f-3d1206c78da9",
+        "1bcbd96e-87da-4491-8f48-d07ff0aca0a9",
+        "1cdda743-1169-47a2-9726-127ac54f8cc5",
+        "20235852-6da5-434d-9bc2-73e223073c3c",
+        "2415e2bb-5c60-4086-adee-15b66f38ed14",
+        "2af31407-3eaa-45e3-8ecb-508cfc32fcb8",
+        "55d6aa10-f9fb-44a9-a041-a2313a990504",
+        "8c4a9f8c-2ea1-440d-bc64-726c97b28a4d",
+        "9b67d369-7572-4deb-8653-64c360689918",
+        "b4472271-a149-4166-a5b3-db1f19365aca",
+        "d59e0f46-5751-4be7-9e21-f760a00dc98c",
+        "eb48f799-42e8-483b-b482-1f8f8ae7a42f"
+      ],
+      "timeline": [
+        {
+          "rule_id": "BRUTE_FORCE_001",
+          "timestamp": "2026-10-08T10:00:20+00:00",
+          "source_ip": "192.0.2.25",
+          "service": "auth-service",
+          "actor": "victim@example.test",
+          "target": "victim@example.test",
+          "event_ids": [
+            "04c020af-e8ac-4089-8d4a-1ccac62f9de3",
+            "20235852-6da5-434d-9bc2-73e223073c3c",
+            "b4472271-a149-4166-a5b3-db1f19365aca",
+            "d59e0f46-5751-4be7-9e21-f760a00dc98c",
+            "eb48f799-42e8-483b-b482-1f8f8ae7a42f"
+          ]
+        },
+        {
+          "rule_id": "PASSWORD_SPRAY_001",
+          "timestamp": "2026-10-08T10:00:45+00:00",
+          "source_ip": "192.0.2.25",
+          "service": "auth-service",
+          "actor": "192.0.2.25",
+          "target": [
+            "target0@example.test",
+            "target1@example.test",
+            "target2@example.test",
+            "target3@example.test",
+            "victim@example.test"
+          ],
+          "event_ids": [
+            "1bcbd96e-87da-4491-8f48-d07ff0aca0a9",
+            "1cdda743-1169-47a2-9726-127ac54f8cc5",
+            "2af31407-3eaa-45e3-8ecb-508cfc32fcb8",
+            "55d6aa10-f9fb-44a9-a041-a2313a990504",
+            "d59e0f46-5751-4be7-9e21-f760a00dc98c"
+          ]
+        },
+        {
+          "rule_id": "SLOW_PASSWORD_SPRAY_001",
+          "timestamp": "2026-10-08T10:05:00+00:00",
+          "source_ip": "192.0.2.25",
+          "service": "auth-service",
+          "actor": "192.0.2.25",
+          "target": [
+            "target0@example.test",
+            "target1@example.test",
+            "target2@example.test",
+            "target3@example.test",
+            "target4@example.test",
+            "target5@example.test",
+            "target6@example.test",
+            "victim@example.test"
+          ],
+          "event_ids": [
+            "1b4f8adb-d478-40c6-a35f-3d1206c78da9",
+            "1bcbd96e-87da-4491-8f48-d07ff0aca0a9",
+            "1cdda743-1169-47a2-9726-127ac54f8cc5",
+            "2415e2bb-5c60-4086-adee-15b66f38ed14",
+            "2af31407-3eaa-45e3-8ecb-508cfc32fcb8",
+            "55d6aa10-f9fb-44a9-a041-a2313a990504",
+            "9b67d369-7572-4deb-8653-64c360689918",
+            "d59e0f46-5751-4be7-9e21-f760a00dc98c"
+          ]
+        },
+        {
+          "rule_id": "BOLA_001",
+          "timestamp": "2026-10-08T10:06:00+00:00",
+          "source_ip": "192.0.2.25",
+          "service": "user-service",
+          "actor": "alice",
+          "target": "bob",
+          "event_ids": [
+            "8c4a9f8c-2ea1-440d-bc64-726c97b28a4d"
+          ]
+        }
+      ]
+    }
+  ]
+}

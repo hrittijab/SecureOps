@@ -1,0 +1,105 @@
+{
+  "auth_events_analyzed": 17,
+  "authorization_events_analyzed": 4,
+  "raw_alert_count": 3,
+  "normalized_alert_count": 3,
+  "incident_count": 1,
+  "incidents": [
+    {
+      "incident_id": "aaff463f-7026-5013-a8c1-ce6268119c58",
+      "source_ip": "0:0:0:0:0:0:0:1",
+      "severity": "HIGH",
+      "risk_score": 75,
+      "alert_count": 3,
+      "rules": [
+        "BRUTE_FORCE_001",
+        "PASSWORD_SPRAY_001",
+        "SLOW_PASSWORD_SPRAY_001"
+      ],
+      "services": [
+        "auth-service"
+      ],
+      "first_seen": "2026-10-09T19:26:36.870777+00:00",
+      "last_seen": "2026-10-09T19:26:37.093895+00:00",
+      "event_ids": [
+        "12d8ecca-75c7-48f4-aec7-62fab4942a98",
+        "15879734-a2c9-475f-8ac8-56a332bf50ab",
+        "1a0566a5-a34b-4b05-b786-6c5fedf2a5ba",
+        "593dd4eb-f423-4d73-accd-1bfa5f2a6201",
+        "5f13b4a1-5a8e-4330-b9bb-6de3fbaebbfc",
+        "65027fd6-26b7-42a1-bea0-c840968a4fd4",
+        "7cb8d4b5-dd1d-461d-965e-26c9f3139059",
+        "809133fa-b1ec-4519-85f4-9b9d70a7f16f",
+        "84f8c27f-6c28-4929-a7d8-d9e35da2df9b",
+        "a3fd590d-1cab-4485-ac9a-c3725d88de28",
+        "cc0f2d8c-0b22-45a5-98a2-7fb661115b0a",
+        "f8b9ba42-262d-4db5-bab6-0e291fc89d9d"
+      ],
+      "timeline": [
+        {
+          "rule_id": "BRUTE_FORCE_001",
+          "timestamp": "2026-10-09T19:26:36.870777+00:00",
+          "source_ip": "0:0:0:0:0:0:0:1",
+          "service": "auth-service",
+          "actor": "victim-725edbc84856@example.test",
+          "target": "victim-725edbc84856@example.test",
+          "event_ids": [
+            "12d8ecca-75c7-48f4-aec7-62fab4942a98",
+            "15879734-a2c9-475f-8ac8-56a332bf50ab",
+            "5f13b4a1-5a8e-4330-b9bb-6de3fbaebbfc",
+            "809133fa-b1ec-4519-85f4-9b9d70a7f16f",
+            "a3fd590d-1cab-4485-ac9a-c3725d88de28"
+          ]
+        },
+        {
+          "rule_id": "PASSWORD_SPRAY_001",
+          "timestamp": "2026-10-09T19:26:37.026101+00:00",
+          "source_ip": "0:0:0:0:0:0:0:1",
+          "service": "auth-service",
+          "actor": "0:0:0:0:0:0:0:1",
+          "target": [
+            "target0-725edbc84856@example.test",
+            "target1-725edbc84856@example.test",
+            "target2-725edbc84856@example.test",
+            "target3-725edbc84856@example.test",
+            "victim-725edbc84856@example.test"
+          ],
+          "event_ids": [
+            "1a0566a5-a34b-4b05-b786-6c5fedf2a5ba",
+            "65027fd6-26b7-42a1-bea0-c840968a4fd4",
+            "7cb8d4b5-dd1d-461d-965e-26c9f3139059",
+            "a3fd590d-1cab-4485-ac9a-c3725d88de28",
+            "f8b9ba42-262d-4db5-bab6-0e291fc89d9d"
+          ]
+        },
+        {
+          "rule_id": "SLOW_PASSWORD_SPRAY_001",
+          "timestamp": "2026-10-09T19:26:37.093895+00:00",
+          "source_ip": "0:0:0:0:0:0:0:1",
+          "service": "auth-service",
+          "actor": "0:0:0:0:0:0:0:1",
+          "target": [
+            "target0-725edbc84856@example.test",
+            "target1-725edbc84856@example.test",
+            "target2-725edbc84856@example.test",
+            "target3-725edbc84856@example.test",
+            "target4-725edbc84856@example.test",
+            "target5-725edbc84856@example.test",
+            "target6-725edbc84856@example.test",
+            "victim-725edbc84856@example.test"
+          ],
+          "event_ids": [
+            "1a0566a5-a34b-4b05-b786-6c5fedf2a5ba",
+            "593dd4eb-f423-4d73-accd-1bfa5f2a6201",
+            "65027fd6-26b7-42a1-bea0-c840968a4fd4",
+            "7cb8d4b5-dd1d-461d-965e-26c9f3139059",
+            "84f8c27f-6c28-4929-a7d8-d9e35da2df9b",
+            "a3fd590d-1cab-4485-ac9a-c3725d88de28",
+            "cc0f2d8c-0b22-45a5-98a2-7fb661115b0a",
+            "f8b9ba42-262d-4db5-bab6-0e291fc89d9d"
+          ]
+        }
+      ]
+    }
+  ]
+}

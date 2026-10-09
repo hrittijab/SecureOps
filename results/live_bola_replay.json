@@ -1,0 +1,12 @@
+{
+  "experiment": "live_bola_prevention",
+  "target": "http://localhost:8082",
+  "legitimate_status": 200,
+  "unauthorized_status": 403,
+  "checks": {
+    "legitimate_access_allowed": true,
+    "cross_user_access_blocked": true,
+    "cross_user_data_not_returned": true
+  },
+  "passed": true
+}

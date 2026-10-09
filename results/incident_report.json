@@ -1,0 +1,57 @@
+{
+  "event_count": 6,
+  "incident_count": 1,
+  "incidents": [
+    {
+      "incident_id": "f9ec867c-76bf-5be1-a62e-cdb7d79432f6",
+      "source_ip": "0:0:0:0:0:0:0:1",
+      "severity": "LOW",
+      "event_count": 4,
+      "services": [
+        "auth-service"
+      ],
+      "first_seen": "2026-10-08T19:26:44.086627+00:00",
+      "last_seen": "2026-10-08T19:26:46.141098+00:00",
+      "event_ids": [
+        "9ad8bf32-96d6-41e1-a37f-f251a1d9620f",
+        "26fd560c-4503-4046-824c-9f02a3462167",
+        "60f89534-0683-4540-8282-6d66822d105c",
+        "eb31b25f-ef4b-43df-bebd-a9de34ecde3c"
+      ],
+      "timeline": [
+        {
+          "timestamp": "2026-10-08T19:26:44.086627+00:00",
+          "service": "auth-service",
+          "event_type": "LOGIN_FAILURE",
+          "actor": "spray01@secureops.local",
+          "target": "spray01@secureops.local",
+          "outcome": "FAILURE"
+        },
+        {
+          "timestamp": "2026-10-08T19:26:44.827266+00:00",
+          "service": "auth-service",
+          "event_type": "LOGIN_FAILURE",
+          "actor": "spray02@secureops.local",
+          "target": "spray02@secureops.local",
+          "outcome": "FAILURE"
+        },
+        {
+          "timestamp": "2026-10-08T19:26:45.511600+00:00",
+          "service": "auth-service",
+          "event_type": "LOGIN_FAILURE",
+          "actor": "spray03@secureops.local",
+          "target": "spray03@secureops.local",
+          "outcome": "FAILURE"
+        },
+        {
+          "timestamp": "2026-10-08T19:26:46.141098+00:00",
+          "service": "auth-service",
+          "event_type": "LOGIN_FAILURE",
+          "actor": "spray04@secureops.local",
+          "target": "spray04@secureops.local",
+          "outcome": "FAILURE"
+        }
+      ]
+    }
+  ]
+}
