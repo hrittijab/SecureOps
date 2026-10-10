@@ -1,8 +1,11 @@
+
 package com.secureops.auth.auth;
 
 import com.secureops.auth.security.SecurityEventService;
+import com.secureops.auth.token.JwtService;
 import com.secureops.auth.user.User;
 import com.secureops.auth.user.UserRepository;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,15 +23,18 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final SecurityEventService securityEventService;
+    private final JwtService jwtService;
 
     public AuthService(
             UserRepository userRepository,
             PasswordEncoder passwordEncoder,
-            SecurityEventService securityEventService
+            SecurityEventService securityEventService,
+            JwtService jwtService
     ) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.securityEventService = securityEventService;
+        this.jwtService = jwtService;
     }
 
     @Transactional
@@ -60,7 +66,9 @@ public class AuthService {
         );
     }
 
-    @Transactional(noRollbackFor = AuthenticationFailedException.class)
+    @Transactional(
+            noRollbackFor = AuthenticationFailedException.class
+    )
     public LoginResponse login(
             LoginRequest request,
             String sourceIp,
@@ -73,7 +81,6 @@ public class AuthService {
         User user = userRepository.findByEmail(normalizedEmail)
                 .orElse(null);
 
-        // Unknown account
         if (user == null) {
 
             securityEventService.record(
@@ -91,7 +98,6 @@ public class AuthService {
             );
         }
 
-        // Disabled account
         if (!user.isEnabled()) {
 
             securityEventService.record(
@@ -109,7 +115,6 @@ public class AuthService {
             );
         }
 
-        // Already locked account
         if (user.isLocked()) {
 
             securityEventService.record(
@@ -127,7 +132,6 @@ public class AuthService {
             );
         }
 
-        // Incorrect password
         if (!passwordEncoder.matches(
                 request.password(),
                 user.getPasswordHash()
@@ -135,8 +139,6 @@ public class AuthService {
 
             user.recordFailedLogin();
 
-            // Every incorrect password is a failed login,
-            // including the attempt that causes account lockout.
             securityEventService.record(
                     "LOGIN_FAILURE",
                     user.getId(),
@@ -147,11 +149,12 @@ public class AuthService {
                     "INVALID_CREDENTIALS"
             );
 
-            // Lock account when threshold is reached.
-            if (user.getFailedLoginAttempts() >= MAX_FAILED_ATTEMPTS) {
+            if (user.getFailedLoginAttempts()
+                    >= MAX_FAILED_ATTEMPTS) {
 
                 user.lockUntil(
-                        OffsetDateTime.now().plusMinutes(LOCK_MINUTES)
+                        OffsetDateTime.now()
+                                .plusMinutes(LOCK_MINUTES)
                 );
 
                 securityEventService.record(
@@ -170,8 +173,12 @@ public class AuthService {
             );
         }
 
-        // Successful authentication resets previous failures.
         user.resetFailedLoginAttempts();
+
+        String token = jwtService.issueToken(
+                user.getId(),
+                user.getRole()
+        );
 
         securityEventService.record(
                 "LOGIN_SUCCESS",
@@ -187,7 +194,10 @@ public class AuthService {
                 user.getId(),
                 user.getEmail(),
                 user.getRole(),
-                "Login successful"
+                "Login successful",
+                token,
+                "Bearer",
+                900
         );
     }
 }

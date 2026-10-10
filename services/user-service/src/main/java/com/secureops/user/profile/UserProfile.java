@@ -58,4 +58,17 @@ public class UserProfile {
     public OffsetDateTime getCreatedAt() {
         return createdAt;
     }
+    public void updateContactDetails(
+        String fullName,
+        String phone,
+        String address
+    ) {
+        this.fullName = fullName;
+        this.phone = phone;
+        this.address = address;
+    }
+
+    public void labUpdateAccountTier(String accountTier) {
+        this.accountTier = accountTier;
+    }
 }

@@ -6,6 +6,9 @@ public record LoginResponse(
         UUID userId,
         String email,
         String role,
-        String message
+        String message,
+        String accessToken,
+        String tokenType,
+        long expiresIn
 ) {
 }

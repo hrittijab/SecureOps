@@ -38,3 +38,4 @@ htmlcov/
 # Generated security data
 data/generated/
 results/tmp/
+/secrets/
