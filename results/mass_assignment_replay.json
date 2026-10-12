@@ -1,0 +1,30 @@
+{
+  "experiment": "mass_assignment_replay",
+  "timestamp": "2026-10-10T17:22:53.273150+00:00",
+  "results": {
+    "vulnerable_mass_assignment": {
+      "passed": true,
+      "http_status": 200,
+      "original_tier": "STANDARD",
+      "tier_after_attack": "PREMIUM",
+      "attack_succeeded": true
+    },
+    "defended_mass_assignment": {
+      "passed": true,
+      "http_status": 400,
+      "tier_after_attempt": "PREMIUM",
+      "attack_blocked": true
+    },
+    "cross_user_update_blocked": {
+      "passed": true,
+      "http_status": 403
+    },
+    "original_tier_restored": {
+      "passed": true,
+      "http_status": 200,
+      "restored_tier": "STANDARD"
+    }
+  },
+  "restoration_error": null,
+  "passed": true
+}

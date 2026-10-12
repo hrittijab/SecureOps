@@ -1,0 +1,23 @@
+{
+  "generated_at": "2026-10-12T12:10:50.420994+00:00",
+  "verification_count": 2,
+  "verifications": [
+    {
+      "rule_id": "MASS_ASSIGNMENT_001",
+      "control": "WRITABLE_FIELD_RESTRICTION",
+      "verification_type": "COMPARATIVE_CONTROL_TEST",
+      "status": "VERIFIED",
+      "vulnerable_attack_succeeded": true,
+      "defended_attack_blocked": true,
+      "state_restored": true,
+      "source": "mass_assignment_replay.json"
+    },
+    {
+      "rule_id": "BOLA_001",
+      "control": "OBJECT_LEVEL_AUTHORIZATION",
+      "verification_type": "DEFENSE_ONLY_TEST",
+      "status": "VERIFIED",
+      "source": "live_bola_replay.json"
+    }
+  ]
+}

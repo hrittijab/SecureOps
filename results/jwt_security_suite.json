@@ -1,0 +1,78 @@
+{
+  "experiment": "secureops_jwt_security_suite",
+  "timestamp": "2026-10-09T21:12:06.850942+00:00",
+  "total_scenarios": 3,
+  "passed_scenarios": 3,
+  "failed_scenarios": 0,
+  "pass_rate": 1.0,
+  "scenarios": {
+    "bola_prevention": {
+      "passed": true,
+      "exit_code": 0,
+      "report_file": "results/live_bola_replay.json",
+      "results": {
+        "missing_jwt_rejected": true,
+        "invalid_jwt_rejected": true,
+        "legitimate_access_allowed": true,
+        "cross_user_access_blocked": true,
+        "spoofed_identity_blocked": true,
+        "cross_user_data_not_returned": true
+      }
+    },
+    "jwt_integrity": {
+      "passed": true,
+      "exit_code": 0,
+      "report_file": "results/jwt_attack_replay.json",
+      "results": {
+        "valid_jwt": {
+          "expected_status": 200,
+          "actual_status": 200,
+          "passed": true
+        },
+        "modified_payload": {
+          "expected_status": 401,
+          "actual_status": 401,
+          "passed": true
+        },
+        "modified_signature": {
+          "expected_status": 401,
+          "actual_status": 401,
+          "passed": true
+        },
+        "malformed_jwt": {
+          "expected_status": 401,
+          "actual_status": 401,
+          "passed": true
+        }
+      }
+    },
+    "jwt_claim_validation": {
+      "passed": true,
+      "exit_code": 0,
+      "report_file": "results/jwt_claims_replay.json",
+      "results": {
+        "valid_auth_service_jwt": {
+          "expected": 200,
+          "actual": 200,
+          "passed": true
+        },
+        "expired_jwt": {
+          "expected": 401,
+          "actual": 401,
+          "passed": true
+        },
+        "incorrect_issuer": {
+          "expected": 401,
+          "actual": 401,
+          "passed": true
+        },
+        "incorrect_audience": {
+          "expected": 401,
+          "actual": 401,
+          "passed": true
+        }
+      }
+    }
+  },
+  "passed": true
+}
