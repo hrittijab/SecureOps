@@ -7,6 +7,10 @@ from uuid import uuid5, NAMESPACE_DNS
 from detection.rules.brute_force import detect as detect_brute_force
 from detection.rules.password_spray import detect as detect_password_spray
 from detection.rules.slow_password_spray import detect as detect_slow_spray
+from detection.rules.slow_brute_force import detect as detect_slow_brute_force
+from detection.rules.distributed_password_spray import (
+    detect as detect_distributed_password_spray,
+)
 
 
 START = datetime(2026, 10, 12, 10, 0, tzinfo=timezone.utc)
@@ -115,29 +119,76 @@ def build_scenarios():
 def evaluate_scenario(scenario):
     events = scenario["events"]
 
-    alerts = (
+    # Stage 1: Original detection rules
+    baseline_alerts = (
         detect_brute_force(events)
         + detect_password_spray(events)
         + detect_slow_spray(events)
     )
 
-    detected_rules = sorted({
-        alert["rule_id"]
-        for alert in alerts
+    # Stage 2: Add slow brute-force detection
+    improved_alerts = (
+        baseline_alerts
+        + detect_slow_brute_force(events)
+    )
+
+    # Stage 3: Add distributed password-spray detection
+    final_alerts = (
+        improved_alerts
+        + detect_distributed_password_spray(events)
+    )
+
+    baseline_rules = sorted({
+        alert["rule_id"] for alert in baseline_alerts
     })
 
-    detected = bool(alerts)
-    expected = scenario["expected_detection"]
+    improved_rules = sorted({
+        alert["rule_id"] for alert in improved_alerts
+    })
+
+    final_rules = sorted({
+        alert["rule_id"] for alert in final_alerts
+    })
+
+    baseline_detected = bool(baseline_alerts)
+    improved_detected = bool(improved_alerts)
+    final_detected = bool(final_alerts)
 
     return {
         "scenario_id": scenario["id"],
         "name": scenario["name"],
         "event_count": len(events),
-        "expected_detection": expected,
-        "detected": detected,
-        "evasion_success": not detected,
-        "detected_rules": detected_rules,
-        "result": "PASS" if detected == expected else "FAIL",
+
+        # Historical expectation for baseline behavior
+        "expected_detection": scenario["expected_detection"],
+
+        # Stage 1
+        "baseline_detected": baseline_detected,
+        "baseline_rules": baseline_rules,
+
+        # Stage 2
+        "improved_detected": improved_detected,
+        "improved_rules": improved_rules,
+        "detection_improved": (
+            improved_detected and not baseline_detected
+        ),
+
+        # Stage 3
+        "final_detected": final_detected,
+        "final_rules": final_rules,
+        "final_detection_improved": (
+            final_detected and not improved_detected
+        ),
+
+        # Preserve legacy baseline fields
+        "detected": baseline_detected,
+        "evasion_success": not baseline_detected,
+        "detected_rules": baseline_rules,
+        "result": (
+            "PASS"
+            if baseline_detected == scenario["expected_detection"]
+            else "FAIL"
+        ),
     }
 
 
@@ -147,6 +198,9 @@ def run_experiment():
         for scenario in build_scenarios()
     ]
 
+    scenario_count = len(results)
+
+    # Baseline metrics
     detected_count = sum(
         result["detected"]
         for result in results
@@ -162,21 +216,64 @@ def run_experiment():
         for result in results
     )
 
+    # Stage 2 metrics
+    improved_detected_count = sum(
+        result["improved_detected"]
+        for result in results
+    )
+
+    newly_detected_count = sum(
+        result["detection_improved"]
+        for result in results
+    )
+
+    # Stage 3 metrics
+    final_detected_count = sum(
+        result["final_detected"]
+        for result in results
+    )
+
+    final_newly_detected_count = sum(
+        result["final_detection_improved"]
+        for result in results
+    )
+
     report = {
         "experiment": "authentication_detection_robustness",
         "synthetic_data": True,
-        "scenario_count": len(results),
+        "scenario_count": scenario_count,
+
+        # Original baseline
         "detected_count": detected_count,
         "evaded_count": evaded_count,
         "detection_rate": round(
-            detected_count / len(results), 4
-        ) if results else 0.0,
+            detected_count / scenario_count, 4
+        ) if scenario_count else 0.0,
+
+        # Baseline regression checks
         "checks_passed": passed_count,
-        "passed": passed_count == len(results),
+        "passed": passed_count == scenario_count,
+
+        # Stage 2
+        "improved_detected_count": improved_detected_count,
+        "improved_detection_rate": round(
+            improved_detected_count / scenario_count, 4
+        ) if scenario_count else 0.0,
+        "newly_detected_count": newly_detected_count,
+
+        # Stage 3
+        "final_detected_count": final_detected_count,
+        "final_detection_rate": round(
+            final_detected_count / scenario_count, 4
+        ) if scenario_count else 0.0,
+        "final_newly_detected_count": final_newly_detected_count,
+
+        # Scenario details
         "results": results,
     }
 
     RESULT_PATH.parent.mkdir(parents=True, exist_ok=True)
+
     RESULT_PATH.write_text(
         json.dumps(report, indent=2),
         encoding="utf-8",
@@ -186,22 +283,36 @@ def run_experiment():
     print("=" * 65)
 
     for result in results:
-        status = result["result"]
-        detection = "DETECTED" if result["detected"] else "EVADED"
+        baseline_status = (
+            "DETECTED" if result["baseline_detected"] else "EVADED"
+        )
+        improved_status = (
+            "DETECTED" if result["improved_detected"] else "EVADED"
+        )
+        final_status = (
+            "DETECTED" if result["final_detected"] else "EVADED"
+        )
 
         print(
             f"{result['scenario_id']}: "
-            f"{detection:<10} "
-            f"{status:<5} "
-            f"{result['name']}"
+            f"baseline={baseline_status:<8} "
+            f"improved={improved_status:<8} "
+            f"final={final_status:<8}"
         )
 
     print("-" * 65)
-    print(f"Scenarios:       {len(results)}")
-    print(f"Detected:        {detected_count}")
-    print(f"Evaded:          {evaded_count}")
-    print(f"Checks passed:   {passed_count}/{len(results)}")
-    print(f"Report saved:   {RESULT_PATH}")
+    print(f"Scenarios:           {scenario_count}")
+    print(f"Baseline detected:   {detected_count}/{scenario_count}")
+    print(
+        f"Improved detected:   "
+        f"{improved_detected_count}/{scenario_count}"
+    )
+    print(
+        f"Final detected:      "
+        f"{final_detected_count}/{scenario_count}"
+    )
+    print(f"Baseline checks:     {passed_count}/{scenario_count}")
+    print(f"Report saved:        {RESULT_PATH}")
 
     return report
 

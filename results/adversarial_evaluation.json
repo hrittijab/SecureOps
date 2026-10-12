@@ -7,12 +7,32 @@
   "detection_rate": 0.6667,
   "checks_passed": 6,
   "passed": true,
+  "improved_detected_count": 5,
+  "improved_detection_rate": 0.8333,
+  "newly_detected_count": 1,
+  "final_detected_count": 6,
+  "final_detection_rate": 1.0,
+  "final_newly_detected_count": 1,
   "results": [
     {
       "scenario_id": "ADV-001",
       "name": "Rapid brute force",
       "event_count": 5,
       "expected_detection": true,
+      "baseline_detected": true,
+      "baseline_rules": [
+        "BRUTE_FORCE_001"
+      ],
+      "improved_detected": true,
+      "improved_rules": [
+        "BRUTE_FORCE_001"
+      ],
+      "detection_improved": false,
+      "final_detected": true,
+      "final_rules": [
+        "BRUTE_FORCE_001"
+      ],
+      "final_detection_improved": false,
       "detected": true,
       "evasion_success": false,
       "detected_rules": [
@@ -25,6 +45,20 @@
       "name": "Distributed rapid brute force",
       "event_count": 5,
       "expected_detection": true,
+      "baseline_detected": true,
+      "baseline_rules": [
+        "BRUTE_FORCE_001"
+      ],
+      "improved_detected": true,
+      "improved_rules": [
+        "BRUTE_FORCE_001"
+      ],
+      "detection_improved": false,
+      "final_detected": true,
+      "final_rules": [
+        "BRUTE_FORCE_001"
+      ],
+      "final_detection_improved": false,
       "detected": true,
       "evasion_success": false,
       "detected_rules": [
@@ -37,6 +71,18 @@
       "name": "Slow single-account brute force",
       "event_count": 5,
       "expected_detection": false,
+      "baseline_detected": false,
+      "baseline_rules": [],
+      "improved_detected": true,
+      "improved_rules": [
+        "SLOW_BRUTE_FORCE_001"
+      ],
+      "detection_improved": true,
+      "final_detected": true,
+      "final_rules": [
+        "SLOW_BRUTE_FORCE_001"
+      ],
+      "final_detection_improved": false,
       "detected": false,
       "evasion_success": true,
       "detected_rules": [],
@@ -47,6 +93,20 @@
       "name": "Rapid password spray",
       "event_count": 5,
       "expected_detection": true,
+      "baseline_detected": true,
+      "baseline_rules": [
+        "PASSWORD_SPRAY_001"
+      ],
+      "improved_detected": true,
+      "improved_rules": [
+        "PASSWORD_SPRAY_001"
+      ],
+      "detection_improved": false,
+      "final_detected": true,
+      "final_rules": [
+        "PASSWORD_SPRAY_001"
+      ],
+      "final_detection_improved": false,
       "detected": true,
       "evasion_success": false,
       "detected_rules": [
@@ -59,6 +119,20 @@
       "name": "Low-and-slow password spray",
       "event_count": 8,
       "expected_detection": true,
+      "baseline_detected": true,
+      "baseline_rules": [
+        "SLOW_PASSWORD_SPRAY_001"
+      ],
+      "improved_detected": true,
+      "improved_rules": [
+        "SLOW_PASSWORD_SPRAY_001"
+      ],
+      "detection_improved": false,
+      "final_detected": true,
+      "final_rules": [
+        "SLOW_PASSWORD_SPRAY_001"
+      ],
+      "final_detection_improved": false,
       "detected": true,
       "evasion_success": false,
       "detected_rules": [
@@ -71,6 +145,16 @@
       "name": "Distributed password spray",
       "event_count": 8,
       "expected_detection": false,
+      "baseline_detected": false,
+      "baseline_rules": [],
+      "improved_detected": false,
+      "improved_rules": [],
+      "detection_improved": false,
+      "final_detected": true,
+      "final_rules": [
+        "DISTRIBUTED_PASSWORD_SPRAY_001"
+      ],
+      "final_detection_improved": true,
       "detected": false,
       "evasion_success": true,
       "detected_rules": [],

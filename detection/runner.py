@@ -5,10 +5,17 @@ import os
 import psycopg
 
 from detection.rules.brute_force import detect as detect_brute_force
+from detection.rules.slow_brute_force import detect as detect_slow_brute_force
 from detection.rules.password_spray import detect as detect_password_spray
-from detection.rules.slow_password_spray import detect as detect_slow_password_spray
+from detection.rules.slow_password_spray import (
+    detect as detect_slow_password_spray,
+)
+from detection.rules.distributed_password_spray import (
+    detect as detect_distributed_password_spray,
+)
 from detection.rules.jwt_abuse import detect as detect_jwt_abuse
 from detection.rules.mass_assignment import detect as detect_mass_assignment
+
 
 def get_database_url() -> str:
     database_url = os.getenv("DETECTION_DB_URL")
@@ -51,8 +58,10 @@ def load_security_events() -> list[dict]:
         with connection.cursor() as cursor:
             cursor.execute(query)
             columns = [
-                description.name for description in cursor.description
+                description.name
+                for description in cursor.description
             ]
+
             return [
                 dict(zip(columns, row))
                 for row in cursor.fetchall()
@@ -75,13 +84,43 @@ def load_jwt_security_events() -> list[dict]:
         with connection.cursor() as cursor:
             cursor.execute(query)
             columns = [
-                description.name for description in cursor.description
+                description.name
+                for description in cursor.description
             ]
+
             return [
                 dict(zip(columns, row))
                 for row in cursor.fetchall()
             ]
 
+
+def load_mass_assignment_events() -> list[dict]:
+    query = """
+        SELECT
+            event_type,
+            actor_user_id,
+            target_user_id,
+            outcome,
+            attempted_fields,
+            source_ip,
+            request_id,
+            occurred_at
+        FROM mass_assignment_events
+        ORDER BY occurred_at ASC
+    """
+
+    with psycopg.connect(get_user_database_url()) as connection:
+        with connection.cursor() as cursor:
+            cursor.execute(query)
+            columns = [
+                description.name
+                for description in cursor.description
+            ]
+
+            return [
+                dict(zip(columns, row))
+                for row in cursor.fetchall()
+            ]
 
 
 def run_detection():
@@ -91,10 +130,22 @@ def run_detection():
 
     alerts = []
 
+    # Authentication threat detection
     alerts.extend(detect_brute_force(auth_events))
+    alerts.extend(detect_slow_brute_force(auth_events))
     alerts.extend(detect_password_spray(auth_events))
     alerts.extend(detect_slow_password_spray(auth_events))
+
+    # Cross-IP authentication anomaly detection.
+    # Medium-severity signal requiring investigation.
+    alerts.extend(
+        detect_distributed_password_spray(auth_events)
+    )
+
+    # JWT security detection
     alerts.extend(detect_jwt_abuse(jwt_events))
+
+    # API mass-assignment detection
     alerts.extend(
         detect_mass_assignment(mass_assignment_events)
     )
@@ -106,7 +157,6 @@ def run_detection():
     )
 
     return all_events, alerts
-
 
 
 def serialize_alert(alert: dict) -> dict:
@@ -139,38 +189,12 @@ def main():
     print(f"[Detection] Generated {len(alerts)} alert(s).\n")
 
     for alert in alerts:
-        print(json.dumps(serialize_alert(alert), indent=2))
-
-
-    
-def load_mass_assignment_events():
-    query = """
-        SELECT
-            event_type,
-            actor_user_id,
-            target_user_id,
-            outcome,
-            attempted_fields,
-            source_ip,
-            request_id,
-            occurred_at
-        FROM mass_assignment_events
-        ORDER BY occurred_at ASC
-    """
-
-    with psycopg.connect(get_user_database_url()) as connection:
-        with connection.cursor() as cursor:
-            cursor.execute(query)
-            columns = [
-                description.name
-                for description in cursor.description
-            ]
-
-            return [
-                dict(zip(columns, row))
-                for row in cursor.fetchall()
-            ]
-
+        print(
+            json.dumps(
+                serialize_alert(alert),
+                indent=2,
+            )
+        )
 
 
 if __name__ == "__main__":

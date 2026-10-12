@@ -18,15 +18,18 @@ def to_timestamp(value):
 def adapt_auth_alert(alert):
     rule_id = alert["rule_id"]
 
-    if rule_id == "BRUTE_FORCE_001":
+    if rule_id in {
+        "BRUTE_FORCE_001",
+        "SLOW_BRUTE_FORCE_001",
+        "DISTRIBUTED_PASSWORD_SPRAY_001",
+        }:
         source_ips = alert.get("source_ips", [])
 
     elif rule_id in {
         "PASSWORD_SPRAY_001",
         "SLOW_PASSWORD_SPRAY_001",
-    }:
+        }:
         source_ips = [alert["entity"]]
-
     else:
         raise ValueError(f"Unsupported auth rule: {rule_id}")
 
@@ -44,8 +47,7 @@ def adapt_auth_alert(alert):
             "actor": alert.get("entity"),
             "target": (
                 alert.get("entity")
-                if rule_id == "BRUTE_FORCE_001"
-                else alert.get("targeted_accounts")
+                if rule_id in {"BRUTE_FORCE_001", "SLOW_BRUTE_FORCE_001"}                else alert.get("targeted_accounts")
             ),
             # These are request IDs, not database event IDs.
             # They are retained as evidence references.

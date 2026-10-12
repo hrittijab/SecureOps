@@ -24,6 +24,20 @@ RESPONSE_ACTIONS = {
         "action": "REVIEW_OBJECT_AUTHORIZATION",
         "description": "Verify object-level access controls.",
     },
+    "SLOW_BRUTE_FORCE_001": {
+    "action": "REVIEW_SLOW_AUTH_ABUSE",
+    "description": (
+        "Investigate repeated authentication failures "
+        "over an extended time window."
+    ),
+    },
+    "DISTRIBUTED_PASSWORD_SPRAY_001": {
+        "action": "INVESTIGATE_DISTRIBUTED_AUTH_ANOMALY",
+        "description": (
+            "Review cross-IP authentication failures and "
+            "corroborate evidence before taking action."
+        ),
+    },
 }
 
 

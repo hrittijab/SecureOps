@@ -9,12 +9,16 @@ from detection.rules.password_spray import detect as detect_password_spray
 from detection.rules.slow_password_spray import (
     detect as detect_slow_password_spray,
 )
+from detection.rules.distributed_password_spray import (
+    detect as detect_distributed_password_spray,
+)
 from evaluation.experiment import (
     evaluate,
     execute_scenario,
     load_scenario,
     reset_lab,
 )
+from detection.rules.slow_brute_force import detect as detect_slow_brute_force
 
 
 SCENARIO_DIRECTORY = Path("attacks/scenarios")
@@ -48,15 +52,17 @@ def run_scenario(path: Path) -> dict:
 
     execution_result = execute_scenario(scenario)
 
-    # Isolate authentication benchmark events.
-    # Do not include JWT or mass-assignment telemetry.
     events = load_security_events()
 
+    
     alerts = (
         detect_brute_force(events)
+        + detect_slow_brute_force(events)
         + detect_password_spray(events)
         + detect_slow_password_spray(events)
-    )
+        + detect_distributed_password_spray(events)
+        )
+
 
     return evaluate(
         scenario,
