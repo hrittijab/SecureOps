@@ -1,21 +1,40 @@
+
 import json
 import os
+from datetime import datetime, timezone
 from pathlib import Path
 
 import psycopg
 
-from detection.runner import run_detection
+from detection.runner import (
+    run_detection,
+    load_mass_assignment_events,
+)
 from detection.rules.bola import detect as detect_bola
 
-from incidents.alert_adapter import adapt_all_alerts
+from incidents.alert_adapter import (
+    adapt_auth_alert,
+    adapt_bola_alert,
+    adapt_jwt_alert,
+    adapt_mass_assignment_alert,
+)
 from incidents.alert_correlator import correlate_alerts
 
 
 REPORT_PATH = Path("results/alert_incident_report.json")
 
+AUTH_RULES = {
+    "BRUTE_FORCE_001",
+    "PASSWORD_SPRAY_001",
+    "SLOW_PASSWORD_SPRAY_001",
+}
+
 
 def load_authorization_events():
-    database_url = os.environ["USER_DETECTION_DB_URL"]
+    database_url = (
+        os.getenv("DETECTION_USER_DB_URL")
+        or os.environ["USER_DETECTION_DB_URL"]
+    )
 
     query = """
         SELECT
@@ -33,47 +52,110 @@ def load_authorization_events():
     with psycopg.connect(database_url) as connection:
         with connection.cursor() as cursor:
             cursor.execute(query)
-
             columns = [
                 description.name
                 for description in cursor.description
             ]
-
             return [
                 dict(zip(columns, row))
                 for row in cursor.fetchall()
             ]
 
 
+def normalize_alerts(
+    alerts,
+    authorization_events,
+    mass_assignment_events,
+):
+    normalized = []
+    uncorrelated = []
+
+    for alert in alerts:
+        rule_id = alert["rule_id"]
+
+        if rule_id in AUTH_RULES:
+            converted = adapt_auth_alert(alert)
+
+        elif rule_id == "BOLA_001":
+            converted = [
+                adapt_bola_alert(
+                    alert,
+                    authorization_events,
+                )
+            ]
+
+        elif rule_id == "JWT_ABUSE_001":
+            converted = adapt_jwt_alert(alert)
+
+        elif rule_id == "MASS_ASSIGNMENT_001":
+            converted = adapt_mass_assignment_alert(
+                alert,
+                mass_assignment_events,
+            )
+
+        else:
+            converted = []
+            reason = "Unsupported detection rule"
+
+        if converted:
+            normalized.extend(converted)
+        else:
+            uncorrelated.append({
+                "rule_id": rule_id,
+                "entity": str(alert.get("entity")),
+                "reason": (
+                    reason
+                    if rule_id not in (
+                        AUTH_RULES
+                        | {
+                            "BOLA_001",
+                            "JWT_ABUSE_001",
+                            "MASS_ASSIGNMENT_001",
+                        }
+                    )
+                    else "No source IP available"
+                ),
+            })
+
+    return normalized, uncorrelated
+
+
 def build_report():
-    auth_events, auth_alerts = run_detection()
+    security_events, security_alerts = run_detection()
 
     authorization_events = load_authorization_events()
-
+    mass_assignment_events = load_mass_assignment_events()
     bola_alerts = detect_bola(authorization_events)
 
-    normalized_alerts = adapt_all_alerts(
-        auth_alerts,
-        bola_alerts,
+    all_alerts = security_alerts + bola_alerts
+
+    normalized, uncorrelated = normalize_alerts(
+        all_alerts,
         authorization_events,
+        mass_assignment_events,
     )
 
-    incidents = correlate_alerts(normalized_alerts)
+    incidents = correlate_alerts(normalized)
 
     return {
-        "auth_events_analyzed": len(auth_events),
+        "generated_at": datetime.now(
+            timezone.utc
+        ).isoformat(),
+        "security_events_analyzed": len(security_events),
         "authorization_events_analyzed": len(
             authorization_events
         ),
-        "raw_alert_count": len(auth_alerts) + len(bola_alerts),
-        "normalized_alert_count": len(normalized_alerts),
+        "raw_alert_count": len(all_alerts),
+        "normalized_alert_count": len(normalized),
+        "uncorrelated_alert_count": len(uncorrelated),
         "incident_count": len(incidents),
         "incidents": incidents,
+        "uncorrelated_alerts": uncorrelated,
     }
 
 
 def main():
-    print("\n[SecureOps Alert-Driven Incident Engine]")
+    print("\n[SecureOps Unified Alert-Driven Incident Engine]")
 
     report = build_report()
 
@@ -88,17 +170,21 @@ def main():
     )
 
     print(
-        "Authentication events analyzed:",
-        report["auth_events_analyzed"],
+        "Security events analyzed:",
+        report["security_events_analyzed"],
     )
     print(
         "Authorization events analyzed:",
         report["authorization_events_analyzed"],
     )
-    print("Detector alerts:", report["raw_alert_count"])
+    print("Detection alerts:", report["raw_alert_count"])
     print(
         "Normalized alert candidates:",
         report["normalized_alert_count"],
+    )
+    print(
+        "Uncorrelated alerts:",
+        report["uncorrelated_alert_count"],
     )
     print("Incidents:", report["incident_count"])
 
