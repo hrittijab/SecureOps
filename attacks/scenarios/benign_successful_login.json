@@ -1,0 +1,19 @@
+
+{
+  "id": "BENIGN-AUTH-003",
+  "name": "Legitimate Authentication Without Failures",
+  "description": "A legitimate user successfully authenticates without failed password attempts.",
+  "category": "benign_authentication",
+  "target": {
+    "endpoint": "/api/auth/login",
+    "email": "alice@secureops.local"
+  },
+  "traffic": {
+    "incorrect_passwords": [],
+    "correct_password": "SecureOpsPass123!"
+  },
+  "evaluation": {
+    "expected_rule_id": "BRUTE_FORCE_001",
+    "expected_alert": false
+  }
+}

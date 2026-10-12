@@ -1,0 +1,80 @@
+{
+  "experiment": "authentication_detection_robustness",
+  "synthetic_data": true,
+  "scenario_count": 6,
+  "detected_count": 4,
+  "evaded_count": 2,
+  "detection_rate": 0.6667,
+  "checks_passed": 6,
+  "passed": true,
+  "results": [
+    {
+      "scenario_id": "ADV-001",
+      "name": "Rapid brute force",
+      "event_count": 5,
+      "expected_detection": true,
+      "detected": true,
+      "evasion_success": false,
+      "detected_rules": [
+        "BRUTE_FORCE_001"
+      ],
+      "result": "PASS"
+    },
+    {
+      "scenario_id": "ADV-002",
+      "name": "Distributed rapid brute force",
+      "event_count": 5,
+      "expected_detection": true,
+      "detected": true,
+      "evasion_success": false,
+      "detected_rules": [
+        "BRUTE_FORCE_001"
+      ],
+      "result": "PASS"
+    },
+    {
+      "scenario_id": "ADV-003",
+      "name": "Slow single-account brute force",
+      "event_count": 5,
+      "expected_detection": false,
+      "detected": false,
+      "evasion_success": true,
+      "detected_rules": [],
+      "result": "PASS"
+    },
+    {
+      "scenario_id": "ADV-004",
+      "name": "Rapid password spray",
+      "event_count": 5,
+      "expected_detection": true,
+      "detected": true,
+      "evasion_success": false,
+      "detected_rules": [
+        "PASSWORD_SPRAY_001"
+      ],
+      "result": "PASS"
+    },
+    {
+      "scenario_id": "ADV-005",
+      "name": "Low-and-slow password spray",
+      "event_count": 8,
+      "expected_detection": true,
+      "detected": true,
+      "evasion_success": false,
+      "detected_rules": [
+        "SLOW_PASSWORD_SPRAY_001"
+      ],
+      "result": "PASS"
+    },
+    {
+      "scenario_id": "ADV-006",
+      "name": "Distributed password spray",
+      "event_count": 8,
+      "expected_detection": false,
+      "detected": false,
+      "evasion_success": true,
+      "detected_rules": [],
+      "result": "PASS"
+    }
+  ]
+}

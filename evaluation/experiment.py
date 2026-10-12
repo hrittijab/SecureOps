@@ -97,7 +97,11 @@ def evaluate(
         if alert["rule_id"] == expected_rule_id
     ]
 
-    actual_alert = bool(matching_alerts)
+    actual_alert = (
+        bool(matching_alerts)
+        if expected_alert
+        else bool(alerts)
+    )
 
     passed = actual_alert == expected_alert
 

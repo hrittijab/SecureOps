@@ -7,6 +7,7 @@ from detection.rules.password_spray import (
 from detection.rules.slow_password_spray import (
     detect as detect_slow_spray
 )
+from detection.rules.brute_force import detect as detect_brute_force
 
 
 def make_failure(
@@ -126,3 +127,62 @@ def test_successful_logins_do_not_contribute_to_slow_spray():
     alerts = detect_slow_spray(events)
 
     assert alerts == []
+
+def test_slow_single_account_bruteforce_evasion():
+    """
+    Five failed logins against one account, spaced
+    beyond the brute-force detector's 60-second window.
+
+    Documents a current detection limitation.
+    """
+    start = datetime(2026, 10, 12, tzinfo=timezone.utc)
+
+    events = [
+        make_failure(
+            email="target@secureops.local",
+            source_ip="192.0.2.40",
+            occurred_at=start + timedelta(seconds=i * 90),
+        )
+        for i in range(5)
+    ]
+
+    alerts = (
+        detect_brute_force(events)
+        + detect_fast_spray(events)
+        + detect_slow_spray(events)
+    )
+
+    # Known limitation: no rule currently detects this pattern.
+    assert alerts == []
+
+
+def test_distributed_single_account_bruteforce():
+    """
+    Five rapid failures against one account from
+    five different source IPs.
+
+    The per-account brute-force detector should
+    detect the attack despite source IP rotation.
+    """
+    start = datetime(2026, 10, 12, tzinfo=timezone.utc)
+
+    events = [
+        make_failure(
+            email="target@secureops.local",
+            source_ip=f"192.0.2.{50 + i}",
+            occurred_at=start + timedelta(seconds=i * 5),
+        )
+        for i in range(5)
+    ]
+
+    brute_alerts = detect_brute_force(events)
+    fast_spray_alerts = detect_fast_spray(events)
+    slow_spray_alerts = detect_slow_spray(events)
+
+    assert len(brute_alerts) == 1
+    assert brute_alerts[0]["rule_id"] == "BRUTE_FORCE_001"
+    assert len(brute_alerts[0]["source_ips"]) == 5
+
+    # Neither spray detector should trigger.
+    assert fast_spray_alerts == []
+    assert slow_spray_alerts == []

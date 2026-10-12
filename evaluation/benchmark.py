@@ -1,8 +1,14 @@
+
 import json
 import sys
 from pathlib import Path
 
-from detection.runner import run_detection
+from detection.runner import load_security_events
+from detection.rules.brute_force import detect as detect_brute_force
+from detection.rules.password_spray import detect as detect_password_spray
+from detection.rules.slow_password_spray import (
+    detect as detect_slow_password_spray,
+)
 from evaluation.experiment import (
     evaluate,
     execute_scenario,
@@ -18,13 +24,9 @@ RESULTS_FILE = RESULTS_DIRECTORY / "security_benchmark.json"
 
 def discover_scenarios() -> list[Path]:
     """
-    Discover scenarios supported by the authentication
-    detection benchmark.
+    Discover supported authentication benchmark scenarios.
 
-    BOLA scenarios are evaluated separately by
-    evaluation.bola_experiment because they validate
-    remediation behavior rather than the auth detection
-    pipeline.
+    BOLA scenarios are evaluated separately.
     """
     return sorted(
         path
@@ -40,13 +42,21 @@ def run_scenario(path: Path) -> dict:
     print(f"Running: {scenario['id']}")
     print("=" * 70)
 
-    # Every authentication experiment starts from clean
-    # authentication state and an empty security-event table.
+    # Reset authentication state and authentication telemetry.
+    # This operation is intended only for the local test lab.
     reset_lab()
 
     execution_result = execute_scenario(scenario)
 
-    events, alerts = run_detection()
+    # Isolate authentication benchmark events.
+    # Do not include JWT or mass-assignment telemetry.
+    events = load_security_events()
+
+    alerts = (
+        detect_brute_force(events)
+        + detect_password_spray(events)
+        + detect_slow_password_spray(events)
+    )
 
     return evaluate(
         scenario,
@@ -57,60 +67,52 @@ def run_scenario(path: Path) -> dict:
 
 
 def calculate_metrics(results: list[dict]) -> dict:
-    true_positive = 0
-    true_negative = 0
-    false_positive = 0
-    false_negative = 0
+    tp = 0
+    tn = 0
+    fp = 0
+    fn = 0
 
     for result in results:
         expected = result["expected_alert"]
         actual = result["actual_alert"]
 
         if expected and actual:
-            true_positive += 1
-
+            tp += 1
         elif not expected and not actual:
-            true_negative += 1
-
+            tn += 1
         elif not expected and actual:
-            false_positive += 1
+            fp += 1
+        else:
+            fn += 1
 
-        elif expected and not actual:
-            false_negative += 1
+    total = tp + tn + fp + fn
 
-    attack_total = (
-        true_positive + false_negative
-    )
+    precision = tp / (tp + fp) if tp + fp else 0.0
+    recall = tp / (tp + fn) if tp + fn else 0.0
+    specificity = tn / (tn + fp) if tn + fp else 0.0
+    accuracy = (tp + tn) / total if total else 0.0
 
-    benign_total = (
-        true_negative + false_positive
-    )
-
-    detection_rate = (
-        true_positive / attack_total
-        if attack_total
-        else 0.0
-    )
-
-    false_positive_rate = (
-        false_positive / benign_total
-        if benign_total
+    f1 = (
+        2 * precision * recall / (precision + recall)
+        if precision + recall
         else 0.0
     )
 
     return {
-        "true_positives": true_positive,
-        "true_negatives": true_negative,
-        "false_positives": false_positive,
-        "false_negatives": false_negative,
-        "attack_detection_rate": round(
-            detection_rate,
-            4,
-        ),
+        "true_positives": tp,
+        "true_negatives": tn,
+        "false_positives": fp,
+        "false_negatives": fn,
+        "attack_detection_rate": round(recall, 4),
         "false_positive_rate": round(
-            false_positive_rate,
+            fp / (fp + tn) if fp + tn else 0.0,
             4,
         ),
+        "precision": round(precision, 4),
+        "recall": round(recall, 4),
+        "f1_score": round(f1, 4),
+        "accuracy": round(accuracy, 4),
+        "specificity": round(specificity, 4),
     }
 
 
@@ -154,25 +156,10 @@ def print_results(
 
     print("-" * 70)
 
-    print(
-        f"True positives:        "
-        f"{metrics['true_positives']}"
-    )
-
-    print(
-        f"True negatives:        "
-        f"{metrics['true_negatives']}"
-    )
-
-    print(
-        f"False positives:       "
-        f"{metrics['false_positives']}"
-    )
-
-    print(
-        f"False negatives:       "
-        f"{metrics['false_negatives']}"
-    )
+    print(f"True positives:        {metrics['true_positives']}")
+    print(f"True negatives:        {metrics['true_negatives']}")
+    print(f"False positives:       {metrics['false_positives']}")
+    print(f"False negatives:       {metrics['false_negatives']}")
 
     print(
         f"Attack detection rate: "
@@ -184,16 +171,18 @@ def print_results(
         f"{metrics['false_positive_rate']:.2%}"
     )
 
+    print(f"Precision:             {metrics['precision']:.2%}")
+    print(f"Recall:                {metrics['recall']:.2%}")
+    print(f"F1 score:              {metrics['f1_score']:.2%}")
+    print(f"Accuracy:              {metrics['accuracy']:.2%}")
+    print(f"Specificity:           {metrics['specificity']:.2%}")
+
     passed = sum(
         result["result"] == "PASS"
         for result in results
     )
 
-    print(
-        f"Scenarios passed:      "
-        f"{passed}/{len(results)}"
-    )
-
+    print(f"Scenarios passed:      {passed}/{len(results)}")
     print("=" * 70)
 
 
@@ -201,9 +190,7 @@ def save_results(
     results: list[dict],
     metrics: dict,
 ) -> None:
-    RESULTS_DIRECTORY.mkdir(
-        exist_ok=True
-    )
+    RESULTS_DIRECTORY.mkdir(exist_ok=True)
 
     output = {
         "scenario_count": len(results),
@@ -221,9 +208,7 @@ def save_results(
             indent=2,
         )
 
-    print(
-        f"\nResults saved to: {RESULTS_FILE}"
-    )
+    print(f"\nResults saved to: {RESULTS_FILE}")
 
 
 def main():
@@ -238,32 +223,18 @@ def main():
         sys.exit(1)
 
     print("\n[SecureOps Security Benchmark]")
-
-    print(
-        f"Discovered "
-        f"{len(scenario_paths)} scenario(s)."
-    )
+    print(f"Discovered {len(scenario_paths)} scenario(s).")
 
     results = []
 
     for scenario_path in scenario_paths:
-        result = run_scenario(
-            scenario_path
-        )
-
+        result = run_scenario(scenario_path)
         results.append(result)
 
     metrics = calculate_metrics(results)
 
-    print_results(
-        results,
-        metrics,
-    )
-
-    save_results(
-        results,
-        metrics,
-    )
+    print_results(results, metrics)
+    save_results(results, metrics)
 
     passed = sum(
         result["result"] == "PASS"
