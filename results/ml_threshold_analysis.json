@@ -1,0 +1,145 @@
+{
+  "experiment": "ml_threshold_diagnostic",
+  "synthetic_data": true,
+  "scenario_count": 11,
+  "thresholds": [
+    {
+      "threshold": 0.0,
+      "tp": 4,
+      "fp": 6,
+      "tn": 1,
+      "fn": 0,
+      "precision": 0.4,
+      "recall": 1.0,
+      "false_positive_rate": 0.8571
+    },
+    {
+      "threshold": 0.05,
+      "tp": 4,
+      "fp": 6,
+      "tn": 1,
+      "fn": 0,
+      "precision": 0.4,
+      "recall": 1.0,
+      "false_positive_rate": 0.8571
+    },
+    {
+      "threshold": 0.08,
+      "tp": 4,
+      "fp": 3,
+      "tn": 4,
+      "fn": 0,
+      "precision": 0.5714,
+      "recall": 1.0,
+      "false_positive_rate": 0.4286
+    },
+    {
+      "threshold": 0.1,
+      "tp": 3,
+      "fp": 2,
+      "tn": 5,
+      "fn": 1,
+      "precision": 0.6,
+      "recall": 0.75,
+      "false_positive_rate": 0.2857
+    },
+    {
+      "threshold": 0.15,
+      "tp": 3,
+      "fp": 2,
+      "tn": 5,
+      "fn": 1,
+      "precision": 0.6,
+      "recall": 0.75,
+      "false_positive_rate": 0.2857
+    },
+    {
+      "threshold": 0.18,
+      "tp": 1,
+      "fp": 1,
+      "tn": 6,
+      "fn": 3,
+      "precision": 0.5,
+      "recall": 0.25,
+      "false_positive_rate": 0.1429
+    },
+    {
+      "threshold": 0.2,
+      "tp": 0,
+      "fp": 0,
+      "tn": 7,
+      "fn": 4,
+      "precision": 0.0,
+      "recall": 0.0,
+      "false_positive_rate": 0.0
+    },
+    {
+      "threshold": 0.25,
+      "tp": 0,
+      "fp": 0,
+      "tn": 7,
+      "fn": 4,
+      "precision": 0.0,
+      "recall": 0.0,
+      "false_positive_rate": 0.0
+    }
+  ],
+  "scenario_scores": [
+    {
+      "id": "subthreshold_brute_force",
+      "attack": true,
+      "max_score": 0.16758639289525912
+    },
+    {
+      "id": "subthreshold_password_spray",
+      "attack": true,
+      "max_score": 0.17656312000830388
+    },
+    {
+      "id": "subthreshold_distributed_spray",
+      "attack": true,
+      "max_score": 0.19959249171255689
+    },
+    {
+      "id": "very_slow_brute_force",
+      "attack": true,
+      "max_score": 0.0816387091472699
+    },
+    {
+      "id": "benign_login_spike",
+      "attack": false,
+      "max_score": 0.05743260414465157
+    },
+    {
+      "id": "benign_password_mistakes",
+      "attack": false,
+      "max_score": -0.030766124366019332
+    },
+    {
+      "id": "benign_password_recovery",
+      "attack": false,
+      "max_score": 0.16492228678148613
+    },
+    {
+      "id": "benign_shared_office_ip",
+      "attack": false,
+      "max_score": 0.05743260414465157
+    },
+    {
+      "id": "benign_single_failure",
+      "attack": false,
+      "max_score": 0.0816387091472699
+    },
+    {
+      "id": "benign_shift_change",
+      "attack": false,
+      "max_score": 0.05743260414465157
+    },
+    {
+      "id": "benign_independent_mistakes",
+      "attack": false,
+      "max_score": 0.19959249171255689
+    }
+  ],
+  "note": "Exploratory diagnostic only. Do not select a deployment threshold using these test scenarios."
+}

@@ -1,0 +1,25 @@
+{
+  "experiment": "ml_vs_rule_based_authentication_detection",
+  "dataset": "synthetic",
+  "evaluation_unit": "fixed_60_second_window",
+  "ml": {
+    "tp": 100,
+    "tn": 95,
+    "fp": 5,
+    "fn": 0,
+    "precision": 0.9524,
+    "recall": 1.0,
+    "false_positive_rate": 0.05
+  },
+  "rules": {
+    "tp": 100,
+    "tn": 100,
+    "fp": 0,
+    "fn": 0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "false_positive_rate": 0.0
+  },
+  "additional_ml_detections": 0,
+  "ml_only_false_positives": 5
+}

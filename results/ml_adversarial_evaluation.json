@@ -1,0 +1,82 @@
+{
+  "experiment": "authentication_adversarial_ml_evaluation",
+  "synthetic_data": true,
+  "summary": {
+    "scenario_count": 6,
+    "attack_count": 4,
+    "benign_count": 2,
+    "rules_attack_detections": 0,
+    "ml_attack_detections": 4,
+    "ml_only_attack_detections": 4,
+    "rules_benign_false_positives": 0,
+    "ml_benign_false_positives": 1
+  },
+  "scenarios": [
+    {
+      "scenario_id": "subthreshold_brute_force",
+      "attack": true,
+      "event_count": 4,
+      "window_count": 1,
+      "rules_detected": false,
+      "rule_ids": [],
+      "ml_detected": true,
+      "ml_anomalous_windows": 1,
+      "ml_max_anomaly_score": 0.1676
+    },
+    {
+      "scenario_id": "subthreshold_password_spray",
+      "attack": true,
+      "event_count": 4,
+      "window_count": 1,
+      "rules_detected": false,
+      "rule_ids": [],
+      "ml_detected": true,
+      "ml_anomalous_windows": 1,
+      "ml_max_anomaly_score": 0.1766
+    },
+    {
+      "scenario_id": "subthreshold_distributed_spray",
+      "attack": true,
+      "event_count": 7,
+      "window_count": 1,
+      "rules_detected": false,
+      "rule_ids": [],
+      "ml_detected": true,
+      "ml_anomalous_windows": 1,
+      "ml_max_anomaly_score": 0.1996
+    },
+    {
+      "scenario_id": "very_slow_brute_force",
+      "attack": true,
+      "event_count": 5,
+      "window_count": 5,
+      "rules_detected": false,
+      "rule_ids": [],
+      "ml_detected": true,
+      "ml_anomalous_windows": 5,
+      "ml_max_anomaly_score": 0.0816
+    },
+    {
+      "scenario_id": "benign_login_spike",
+      "attack": false,
+      "event_count": 40,
+      "window_count": 1,
+      "rules_detected": false,
+      "rule_ids": [],
+      "ml_detected": true,
+      "ml_anomalous_windows": 1,
+      "ml_max_anomaly_score": 0.0574
+    },
+    {
+      "scenario_id": "benign_password_mistakes",
+      "attack": false,
+      "event_count": 62,
+      "window_count": 5,
+      "rules_detected": false,
+      "rule_ids": [],
+      "ml_detected": false,
+      "ml_anomalous_windows": 0,
+      "ml_max_anomaly_score": -0.0308
+    }
+  ]
+}

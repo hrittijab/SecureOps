@@ -1,0 +1,18 @@
+{
+  "experiment": "authentication_ml_anomaly_detection",
+  "model": "IsolationForest",
+  "synthetic_data": true,
+  "training_windows": 500,
+  "normal_test_windows": 100,
+  "attack_test_windows": 100,
+  "metrics": {
+    "true_positives": 100,
+    "true_negatives": 95,
+    "false_positives": 5,
+    "false_negatives": 0,
+    "precision": 0.9524,
+    "recall": 1.0,
+    "false_positive_rate": 0.05,
+    "f1_score": 0.9756
+  }
+}

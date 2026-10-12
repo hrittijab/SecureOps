@@ -1,0 +1,54 @@
+{
+  "experiment": "authentication_ml_hard_negatives",
+  "synthetic_data": true,
+  "benign_scenarios": 5,
+  "rules_false_positives": 0,
+  "ml_false_positives": 5,
+  "scenarios": [
+    {
+      "scenario_id": "benign_password_recovery",
+      "event_count": 5,
+      "window_count": 1,
+      "rules_false_positive": false,
+      "ml_false_positive": true,
+      "ml_anomalous_windows": 1,
+      "max_anomaly_score": 0.1649
+    },
+    {
+      "scenario_id": "benign_shared_office_ip",
+      "event_count": 25,
+      "window_count": 2,
+      "rules_false_positive": false,
+      "ml_false_positive": true,
+      "ml_anomalous_windows": 1,
+      "max_anomaly_score": 0.0574
+    },
+    {
+      "scenario_id": "benign_single_failure",
+      "event_count": 1,
+      "window_count": 1,
+      "rules_false_positive": false,
+      "ml_false_positive": true,
+      "ml_anomalous_windows": 1,
+      "max_anomaly_score": 0.0816
+    },
+    {
+      "scenario_id": "benign_shift_change",
+      "event_count": 50,
+      "window_count": 1,
+      "rules_false_positive": false,
+      "ml_false_positive": true,
+      "ml_anomalous_windows": 1,
+      "max_anomaly_score": 0.0574
+    },
+    {
+      "scenario_id": "benign_independent_mistakes",
+      "event_count": 7,
+      "window_count": 1,
+      "rules_false_positive": false,
+      "ml_false_positive": true,
+      "ml_anomalous_windows": 1,
+      "max_anomaly_score": 0.1996
+    }
+  ]
+}

@@ -1,0 +1,142 @@
+{
+  "experiment": "baseline_vs_behavioral_isolation_forest",
+  "synthetic_data": true,
+  "training_windows": 500,
+  "attack_scenarios": 4,
+  "benign_scenarios": 7,
+  "baseline": {
+    "tp": 4,
+    "tn": 1,
+    "fp": 6,
+    "fn": 0,
+    "precision": 0.4,
+    "recall": 1.0,
+    "false_positive_rate": 0.8571
+  },
+  "behavioral": {
+    "tp": 4,
+    "tn": 1,
+    "fp": 6,
+    "fn": 0,
+    "precision": 0.4,
+    "recall": 1.0,
+    "false_positive_rate": 0.8571
+  },
+  "rules": {
+    "tp": 0,
+    "tn": 7,
+    "fp": 0,
+    "fn": 4,
+    "precision": 0.0,
+    "recall": 0.0,
+    "false_positive_rate": 0.0
+  },
+  "scenarios": [
+    {
+      "scenario_id": "subthreshold_brute_force",
+      "attack": true,
+      "baseline_detected": true,
+      "behavioral_detected": true,
+      "rules_detected": false,
+      "baseline_max_score": 0.1676,
+      "behavioral_max_score": 0.1298
+    },
+    {
+      "scenario_id": "subthreshold_password_spray",
+      "attack": true,
+      "baseline_detected": true,
+      "behavioral_detected": true,
+      "rules_detected": false,
+      "baseline_max_score": 0.1766,
+      "behavioral_max_score": 0.1583
+    },
+    {
+      "scenario_id": "subthreshold_distributed_spray",
+      "attack": true,
+      "baseline_detected": true,
+      "behavioral_detected": true,
+      "rules_detected": false,
+      "baseline_max_score": 0.1996,
+      "behavioral_max_score": 0.1801
+    },
+    {
+      "scenario_id": "very_slow_brute_force",
+      "attack": true,
+      "baseline_detected": true,
+      "behavioral_detected": true,
+      "rules_detected": false,
+      "baseline_max_score": 0.0816,
+      "behavioral_max_score": 0.0696
+    },
+    {
+      "scenario_id": "benign_login_spike",
+      "attack": false,
+      "baseline_detected": true,
+      "behavioral_detected": true,
+      "rules_detected": false,
+      "baseline_max_score": 0.0574,
+      "behavioral_max_score": 0.0537
+    },
+    {
+      "scenario_id": "benign_password_mistakes",
+      "attack": false,
+      "baseline_detected": false,
+      "behavioral_detected": false,
+      "rules_detected": false,
+      "baseline_max_score": -0.0308,
+      "behavioral_max_score": -0.0359
+    },
+    {
+      "scenario_id": "benign_password_recovery",
+      "attack": false,
+      "baseline_detected": true,
+      "behavioral_detected": true,
+      "rules_detected": false,
+      "baseline_max_score": 0.1649,
+      "behavioral_max_score": 0.1642
+    },
+    {
+      "scenario_id": "benign_shared_office_ip",
+      "attack": false,
+      "baseline_detected": true,
+      "behavioral_detected": true,
+      "rules_detected": false,
+      "baseline_max_score": 0.0574,
+      "behavioral_max_score": 0.0537
+    },
+    {
+      "scenario_id": "benign_single_failure",
+      "attack": false,
+      "baseline_detected": true,
+      "behavioral_detected": true,
+      "rules_detected": false,
+      "baseline_max_score": 0.0816,
+      "behavioral_max_score": 0.0696
+    },
+    {
+      "scenario_id": "benign_shift_change",
+      "attack": false,
+      "baseline_detected": true,
+      "behavioral_detected": true,
+      "rules_detected": false,
+      "baseline_max_score": 0.0574,
+      "behavioral_max_score": 0.0537
+    },
+    {
+      "scenario_id": "benign_independent_mistakes",
+      "attack": false,
+      "baseline_detected": true,
+      "behavioral_detected": true,
+      "rules_detected": false,
+      "baseline_max_score": 0.1996,
+      "behavioral_max_score": 0.1801
+    }
+  ],
+  "limitations": [
+    "Synthetic training and evaluation data",
+    "Small scenario-level test set",
+    "No independent threshold calibration",
+    "Fixed 60-second ML feature windows",
+    "Behavioral features do not include historical context"
+  ]
+}
