@@ -40,22 +40,47 @@ def test_incident_response_end_to_end():
 
     assert report["raw_alert_count"] == 2
     assert report["normalized_alert_count"] == 2
-    assert report["incident_count"] == 1
-    assert report["response_count"] == 1
+    assert report["incident_count"] == 2
+    assert report["response_count"] == 2
 
-    incident = report["incidents"][0]
-    response = report["responses"][0]
-
-    assert response["incident_id"] == incident["incident_id"]
-    assert response["risk_score"] == incident["risk_score"]
-    assert response["status"] == "PENDING_REVIEW"
-
-    actions = {
-        item["action"]
-        for item in response["recommendations"]
+    incidents_by_rule = {
+        incident["rules"][0]: incident
+        for incident in report["incidents"]
     }
 
-    assert actions == {
-        "REVIEW_IP_RATE_LIMIT",
-        "REVIEW_TOKEN_VALIDATION",
+    responses_by_id = {
+        response["incident_id"]: response
+        for response in report["responses"]
     }
+
+    assert set(incidents_by_rule) == {
+        "PASSWORD_SPRAY_001",
+        "JWT_ABUSE_001",
+    }
+
+    expected = {
+        "PASSWORD_SPRAY_001": {
+            "evidence": ["auth-1"],
+            "actions": {"REVIEW_IP_RATE_LIMIT"},
+        },
+        "JWT_ABUSE_001": {
+            "evidence": ["jwt-1"],
+            "actions": {"REVIEW_TOKEN_VALIDATION"},
+        },
+    }
+
+    for rule_id, expectation in expected.items():
+        incident = incidents_by_rule[rule_id]
+        response = responses_by_id[incident["incident_id"]]
+
+        assert incident["event_ids"] == expectation["evidence"]
+        assert response["incident_id"] == incident["incident_id"]
+        assert response["risk_score"] == incident["risk_score"]
+        assert response["status"] == "PENDING_REVIEW"
+
+        actions = {
+            item["action"]
+            for item in response["recommendations"]
+        }
+
+        assert actions == expectation["actions"]

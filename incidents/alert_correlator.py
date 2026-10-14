@@ -126,13 +126,56 @@ def build_incident(source_ip, alerts):
         }),
         "timeline": alerts,
     }
+def alerts_are_related(first, second):
+    """Require shared evidence or a matching identified actor."""
 
+    first_ids = set(first["event_ids"])
+    second_ids = set(second["event_ids"])
 
-def correlate_alerts(alerts, window_minutes=15):
+    if first_ids & second_ids:
+        return True
+
+    first_actor = first.get("actor")
+    second_actor = second.get("actor")
+
+    if (
+        first_actor is not None
+        and second_actor is not None
+        and first_actor == second_actor
+    ):
+        return True
+
+    return False
+
+def correlate_alerts(
+    alerts,
+    window_minutes=15,
+    require_related_evidence=False,
+):
     if window_minutes <= 0:
         raise ValueError("window_minutes must be positive")
 
-    normalized = [normalize_alert(a) for a in alerts]
+    normalized = []
+    seen = set()
+
+    for raw_alert in alerts:
+        item = normalize_alert(raw_alert)
+
+        identity = (
+            item["rule_id"],
+            item["timestamp"],
+            item["source_ip"],
+            item["service"],
+            tuple(item["event_ids"]),
+            repr(item["actor"]),
+            repr(item["target"]),
+        )
+
+        if identity in seen:
+            continue
+
+        seen.add(identity)
+        normalized.append(item)
     grouped = defaultdict(list)
 
     for alert in normalized:
@@ -156,7 +199,15 @@ def correlate_alerts(alerts, window_minutes=15):
                 - parse_time(current[0]["timestamp"])
             )
 
-            if elapsed <= window:
+            related = (
+            not require_related_evidence
+            or any(
+                alerts_are_related(existing, alert)
+                for existing in current
+            )
+            )
+
+            if elapsed <= window and related:
                 current.append(alert)
             else:
                 incidents.append(build_incident(source_ip, current))

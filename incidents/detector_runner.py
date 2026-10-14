@@ -142,8 +142,10 @@ def build_report():
         mass_assignment_events,
     )
 
-    incidents = correlate_alerts(normalized)
-
+    incidents = correlate_alerts(
+    normalized,
+    require_related_evidence=True,
+    )
     verification_report = build_verification_report()
 
     verification_by_rule = {

@@ -99,3 +99,36 @@ def test_cross_service_alerts_correlate():
         "auth-1",
         "jwt-1",
     ]
+def test_strict_correlation_preserves_related_cross_service_alerts():
+    alerts = [
+        {
+            "rule_id": "PASSWORD_SPRAY_001",
+            "timestamp": NOW.isoformat(),
+            "source_ip": "127.0.0.1",
+            "service": "auth-service",
+            "event_ids": ["shared-request-1", "auth-2"],
+        },
+        {
+            "rule_id": "BOLA_001",
+            "timestamp": NOW.isoformat(),
+            "source_ip": "127.0.0.1",
+            "service": "user-service",
+            "event_ids": ["shared-request-1", "bola-2"],
+        },
+    ]
+
+    incidents = correlate_alerts(
+        alerts,
+        require_related_evidence=True,
+    )
+
+    assert len(incidents) == 1
+    assert incidents[0]["rules"] == [
+        "BOLA_001",
+        "PASSWORD_SPRAY_001",
+    ]
+    assert incidents[0]["event_ids"] == [
+        "auth-2",
+        "bola-2",
+        "shared-request-1",
+    ]
