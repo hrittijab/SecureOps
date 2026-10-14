@@ -8,10 +8,15 @@ import psycopg
 
 from detection.runner import (
     run_detection,
+    load_security_events,
+    load_jwt_security_events,
     load_mass_assignment_events,
 )
 from detection.rules.bola import detect as detect_bola
-from evaluation.remediation import build_report as build_verification_report
+
+from evaluation.remediation import (
+    build_report as build_verification_report,
+)
 
 from incidents.alert_adapter import (
     adapt_auth_alert,
@@ -20,6 +25,12 @@ from incidents.alert_adapter import (
     adapt_mass_assignment_alert,
 )
 from incidents.alert_correlator import correlate_alerts
+from incidents.investigation import (
+    find_incident_relationships,
+    build_investigation_report,
+)
+from incidents.telemetry_adapter import normalize_security_events
+
 from response.policy import recommend_responses
 
 
@@ -142,10 +153,53 @@ def build_report():
         mass_assignment_events,
     )
 
+    # Strict incident correlation.
     incidents = correlate_alerts(
-    normalized,
-    require_related_evidence=True,
+        normalized,
+        require_related_evidence=True,
     )
+
+    # Investigative links do not merge incidents.
+    relationships = find_incident_relationships(incidents)
+
+    # Collect normalized evidence for investigation timelines.
+    investigation_events = []
+
+    investigation_events.extend(
+        normalize_security_events(
+            load_security_events(),
+            "auth-service",
+        )
+    )
+
+    investigation_events.extend(
+        normalize_security_events(
+            load_jwt_security_events(),
+            "user-service",
+        )
+    )
+
+    investigation_events.extend(
+        normalize_security_events(
+            authorization_events,
+            "user-service",
+        )
+    )
+
+    investigation_events.extend(
+        normalize_security_events(
+            mass_assignment_events,
+            "user-service",
+        )
+    )
+
+    investigation_report = build_investigation_report(
+        incidents,
+        investigation_events,
+        relationships,
+    )
+
+    # Remediation verification.
     verification_report = build_verification_report()
 
     verification_by_rule = {
@@ -171,6 +225,7 @@ def build_report():
                         "evidence available"
                     ),
                 }
+
             else:
                 recommendation["control_verification"] = {
                     "status": evidence["status"],
@@ -196,11 +251,17 @@ def build_report():
         "normalized_alert_count": len(normalized),
         "uncorrelated_alert_count": len(uncorrelated),
         "incident_count": len(incidents),
+        "relationship_count": len(relationships),
+        "investigation_count": investigation_report[
+            "investigation_count"
+        ],
         "response_count": len(responses),
         "control_verification_count": verification_report[
             "verification_count"
         ],
         "incidents": incidents,
+        "incident_relationships": relationships,
+        "investigations": investigation_report["investigations"],
         "responses": responses,
         "uncorrelated_alerts": uncorrelated,
     }
@@ -246,6 +307,10 @@ def main():
         report["incident_count"],
     )
     print(
+        "Investigations:",
+        report["investigation_count"],
+    )
+    print(
         "Response plans:",
         report["response_count"],
     )
@@ -271,6 +336,62 @@ def main():
         print(
             "Services:",
             ", ".join(incident["services"]),
+        )
+
+    print("\n[Incident Relationships]")
+
+    print(
+        "Potential relationships:",
+        report["relationship_count"],
+    )
+
+    for relationship in report["incident_relationships"]:
+        print(
+            "\nIncidents:",
+            ", ".join(relationship["incident_ids"]),
+        )
+
+        print(
+            "Relationship:",
+            relationship["relationship_type"],
+        )
+
+        print(
+            "Shared evidence:",
+            relationship["shared_event_ids"],
+        )
+
+        print(
+            "Time difference:",
+            relationship["time_difference_seconds"],
+            "seconds",
+        )
+
+    print("\n[Incident Investigations]")
+
+    for investigation in report["investigations"]:
+        print(
+            f"\nIncident: {investigation['incident_id']}"
+        )
+
+        print(
+            "Rules:",
+            ", ".join(investigation["rules"]),
+        )
+
+        print(
+            "Matched evidence:",
+            investigation["matched_evidence_count"],
+        )
+
+        print(
+            "Missing evidence:",
+            len(investigation["missing_evidence_ids"]),
+        )
+
+        print(
+            "Related incidents:",
+            len(investigation["related_incidents"]),
         )
 
     print("\n[Incident Response Recommendations]")
@@ -302,19 +423,20 @@ def main():
             verification = recommendation["control_verification"]
 
             print(
-                f"    Control verification: "
-                f"{verification['status']}"
+                "    Control verification:",
+                verification["status"],
             )
 
             if verification.get("source"):
                 print(
-                    f"    Evidence: {verification['source']}"
+                    "    Evidence:",
+                    verification["source"],
                 )
 
             if verification.get("verification_type"):
                 print(
-                    f"    Verification type: "
-                    f"{verification['verification_type']}"
+                    "    Verification type:",
+                    verification["verification_type"],
                 )
 
     print(f"\nReport saved to: {REPORT_PATH}")
