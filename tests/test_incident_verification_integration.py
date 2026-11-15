@@ -46,6 +46,14 @@ def test_incident_verification_mapping():
             return_value=[],
         ),
         patch(
+            "incidents.detector_runner.load_security_events",
+            return_value=[],
+        ),
+        patch(
+            "incidents.detector_runner.load_jwt_security_events",
+            return_value=[],
+        ),
+        patch(
             "incidents.detector_runner.detect_bola",
             return_value=[],
         ),

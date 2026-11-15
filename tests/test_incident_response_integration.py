@@ -35,6 +35,14 @@ def test_incident_response_end_to_end():
             "incidents.detector_runner.load_mass_assignment_events",
             return_value=[],
         ),
+        patch(
+            "incidents.detector_runner.load_security_events",
+            return_value=[],
+        ),
+        patch(
+            "incidents.detector_runner.load_jwt_security_events",
+            return_value=[],
+        ),
     ):
         report = build_report()
 
