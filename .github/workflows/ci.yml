@@ -1,0 +1,75 @@
+
+name: SecureOps CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  python-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run Python tests
+        run: python -m pytest -q
+
+  java-tests:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_DB: secureops_auth
+          POSTGRES_USER: secureops
+          POSTGRES_PASSWORD: ci_test_password
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd "pg_isready -U secureops -d secureops_auth"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    defaults:
+      run:
+        working-directory: services/auth-service
+
+    env:
+      DB_URL: jdbc:postgresql://localhost:5433/secureops_auth
+      DB_USERNAME: secureops
+      DB_PASSWORD: ci_test_password
+      JWT_PRIVATE_KEY: ${{ github.workspace }}/secrets/jwt-private.pem
+      JWT_PUBLIC_KEY: ${{ github.workspace }}/secrets/jwt-public.pem
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+          cache-dependency-path: services/auth-service/pom.xml
+
+      - name: Generate temporary JWT keys
+        run: |
+          mkdir -p ../../secrets
+          openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:3072 -out ../../secrets/jwt-private.pem
+          openssl pkey -in ../../secrets/jwt-private.pem -pubout -out ../../secrets/jwt-public.pem
+
+      - name: Run Maven verification
+        run: mvn -B verify
