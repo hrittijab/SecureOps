@@ -1,0 +1,164 @@
+{
+  "synthetic_data": true,
+  "model": "IsolationForest",
+  "final_evaluation": {
+    "window_seconds": 300,
+    "training_windows": 2799,
+    "test_windows": 2829,
+    "metrics": {
+      "tp": 8,
+      "fp": 102,
+      "tn": 2717,
+      "fn": 2,
+      "precision": 0.07272727272727272,
+      "recall": 0.8,
+      "false_positive_rate": 0.03618304363249379
+    },
+    "detected_scenarios": 4,
+    "total_scenarios": 4
+  },
+  "heldout_evaluation": {
+    "training_windows": 6014,
+    "validation_windows": 3152,
+    "test_windows": 3103,
+    "feature_count": 8,
+    "metrics": {
+      "tp": 3,
+      "fp": 91,
+      "tn": 2997,
+      "fn": 12,
+      "precision": 0.0319,
+      "recall": 0.2,
+      "false_positive_rate": 0.0295
+    }
+  },
+  "window_comparison": [
+    {
+      "window_seconds": 60,
+      "training_windows": 6014,
+      "test_windows": 3103,
+      "metrics": {
+        "tp": 3,
+        "fp": 91,
+        "tn": 2997,
+        "fn": 12,
+        "precision": 0.0319,
+        "recall": 0.2,
+        "false_positive_rate": 0.0295
+      },
+      "scenarios": [
+        {
+          "attack_type": "brute_force",
+          "detected": true,
+          "attack_windows": 1,
+          "flagged_attack_windows": 1
+        },
+        {
+          "attack_type": "password_spray",
+          "detected": true,
+          "attack_windows": 1,
+          "flagged_attack_windows": 1
+        },
+        {
+          "attack_type": "distributed_spray",
+          "detected": true,
+          "attack_windows": 1,
+          "flagged_attack_windows": 1
+        },
+        {
+          "attack_type": "slow_brute_force",
+          "detected": false,
+          "attack_windows": 12,
+          "flagged_attack_windows": 0
+        }
+      ]
+    },
+    {
+      "window_seconds": 300,
+      "training_windows": 2799,
+      "test_windows": 1423,
+      "metrics": {
+        "tp": 8,
+        "fp": 47,
+        "tn": 1366,
+        "fn": 2,
+        "precision": 0.1455,
+        "recall": 0.8,
+        "false_positive_rate": 0.0333
+      },
+      "scenarios": [
+        {
+          "attack_type": "brute_force",
+          "detected": true,
+          "attack_windows": 1,
+          "flagged_attack_windows": 1
+        },
+        {
+          "attack_type": "password_spray",
+          "detected": true,
+          "attack_windows": 1,
+          "flagged_attack_windows": 1
+        },
+        {
+          "attack_type": "distributed_spray",
+          "detected": true,
+          "attack_windows": 1,
+          "flagged_attack_windows": 1
+        },
+        {
+          "attack_type": "slow_brute_force",
+          "detected": true,
+          "attack_windows": 7,
+          "flagged_attack_windows": 5
+        }
+      ]
+    },
+    {
+      "window_seconds": 900,
+      "training_windows": 1226,
+      "test_windows": 620,
+      "metrics": {
+        "tp": 6,
+        "fp": 36,
+        "tn": 578,
+        "fn": 0,
+        "precision": 0.1429,
+        "recall": 1.0,
+        "false_positive_rate": 0.0586
+      },
+      "scenarios": [
+        {
+          "attack_type": "brute_force",
+          "detected": true,
+          "attack_windows": 1,
+          "flagged_attack_windows": 1
+        },
+        {
+          "attack_type": "password_spray",
+          "detected": true,
+          "attack_windows": 1,
+          "flagged_attack_windows": 1
+        },
+        {
+          "attack_type": "distributed_spray",
+          "detected": true,
+          "attack_windows": 1,
+          "flagged_attack_windows": 1
+        },
+        {
+          "attack_type": "slow_brute_force",
+          "detected": true,
+          "attack_windows": 3,
+          "flagged_attack_windows": 3
+        }
+      ]
+    }
+  ],
+  "rules_comparison": {
+    "ml_evaluation_unit": "300_second_window",
+    "rules_evaluation_unit": "rule_generated_alert",
+    "rules_detected_scenarios": 4,
+    "rules_total_scenarios": 4,
+    "rules_total_alerts": 5
+  }
+}
