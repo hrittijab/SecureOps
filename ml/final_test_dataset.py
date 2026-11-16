@@ -11,9 +11,9 @@ FINAL_TEST_DAY_OFFSET = 35
 FINAL_TEST_DAYS = 14
 
 
-def build_final_test_dataset():
+def build_final_test_dataset(seed=FINAL_TEST_SEED):
     normal_events = generate_authentication_sessions(
-        seed=FINAL_TEST_SEED,
+        seed=seed,
         days=FINAL_TEST_DAYS,
         users=100,
         recovery_sessions=60,
@@ -46,7 +46,7 @@ def build_final_test_dataset():
             attack_type=attack_type,
             start_time=start_time,
             attack_id=attack_id,
-            seed=FINAL_TEST_SEED + index,
+            seed=seed + index,
         )
 
         events.extend(
@@ -67,7 +67,7 @@ def build_final_test_dataset():
 
     return {
         "name": "final_test",
-        "seed": FINAL_TEST_SEED,
+        "seed": seed,
         "days": FINAL_TEST_DAYS,
         "events": events,
         "scenarios": scenarios,
