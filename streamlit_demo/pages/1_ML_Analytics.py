@@ -158,3 +158,129 @@ st.markdown("""
 - **Operational tradeoff:** Increasing the window size may improve attack coverage while introducing more false alarms.
 - **Limitations:** Results are based on synthetic datasets, and performance may change with real-world traffic and different attack distributions.
 """)
+
+
+# ------------------------------------------------------------
+# 5. Model Error Analysis
+# ------------------------------------------------------------
+
+st.header("5. Model Error Analysis")
+
+ERROR_PATH = Path(__file__).resolve().parents[1] / "ml_error_analysis.json"
+
+@st.cache_data
+def load_error_analysis():
+    return json.loads(ERROR_PATH.read_text(encoding="utf-8"))
+
+errors = load_error_analysis()
+final_errors = errors["final_300s"]
+
+st.subheader("False Positives and Missed Attacks")
+
+c1, c2, c3, c4 = st.columns(4)
+
+c1.metric(
+    "False Discovery Rate",
+    f"{final_errors['false_discovery_rate']:.2%}"
+)
+c2.metric(
+    "Miss Rate",
+    f"{final_errors['miss_rate']:.2%}"
+)
+c3.metric(
+    "False Positives",
+    final_errors["false_positives"]
+)
+c4.metric(
+    "False Negatives",
+    final_errors["false_negatives"]
+)
+
+st.subheader("Predicted Anomalies: Correct vs. Incorrect")
+
+prediction_df = pd.DataFrame({
+    "Outcome": ["True Positive", "False Positive"],
+    "Windows": [
+        final_errors["true_positives"],
+        final_errors["false_positives"],
+    ],
+}).set_index("Outcome")
+
+st.bar_chart(prediction_df)
+
+st.caption(
+    "A false positive is a benign window incorrectly flagged as anomalous. "
+    "The false discovery rate is the proportion of flagged windows that "
+    "were actually benign."
+)
+
+st.subheader("Attack Scenario Detection")
+
+scenario_rows = []
+
+for scenario in errors["final_scenarios"]:
+    scenario_rows.append({
+        "Attack Type": scenario["attack_type"].replace("_", " ").title(),
+        "Attack Windows": scenario["attack_windows"],
+        "Detected Windows": scenario["flagged_attack_windows"],
+        "Missed Windows": (
+            scenario["attack_windows"]
+            - scenario["flagged_attack_windows"]
+        ),
+    })
+
+scenario_df = pd.DataFrame(scenario_rows).set_index("Attack Type")
+
+st.bar_chart(
+    scenario_df[["Detected Windows", "Missed Windows"]]
+)
+
+st.dataframe(scenario_df, use_container_width=True)
+
+st.subheader("Rule-Based Detection")
+
+rule_data = errors["rules"]
+
+rule_df = pd.DataFrame(
+    [
+        {"Rule": name, "Alerts": count}
+        for name, count in rule_data["alerts_by_rule"].items()
+    ]
+).set_index("Rule")
+
+st.bar_chart(rule_df)
+
+st.info(
+    f"The rule engine generated {rule_data['total_alerts']} alerts, "
+    f"including {rule_data['attack_related_alerts']} attack-related alerts. "
+    "Rule alerts and ML detection windows are different evaluation units, "
+    "so their counts should not be treated as equivalent."
+)
+
+st.subheader("Experimental Interpretation")
+
+st.markdown("""
+**Finding 1 — High false discovery rate**
+
+The final model detected 8 attack windows but also flagged 102 benign
+windows. This indicates that most flagged windows were false positives
+in the synthetic test dataset.
+
+**Finding 2 — Slow attack detection**
+
+The 300-second model detected 5 of 7 slow brute-force attack windows,
+whereas the earlier 60-second experiment detected 0 of 12.
+
+**Finding 3 — Complementary detection approaches**
+
+Rule-based detection covered all four evaluated attack scenarios.
+The ML detector also covered all four scenarios, but generated many
+false-positive windows.
+
+**Finding 4 — Limitations**
+
+These experiments use synthetic authentication traffic. Differences
+in window size and evaluation datasets limit direct comparisons.
+Neither the ML metrics nor the rule alert counts establish production
+detection accuracy.
+""")

@@ -1,0 +1,64 @@
+{
+  "synthetic_data": true,
+  "evaluation_unit": "authentication_time_window",
+  "final_300s": {
+    "true_positives": 8,
+    "false_positives": 102,
+    "true_negatives": 2717,
+    "false_negatives": 2,
+    "predicted_anomalies": 110,
+    "actual_attack_windows": 10,
+    "false_discovery_rate": 0.9272727272727272,
+    "miss_rate": 0.2
+  },
+  "heldout_60s": {
+    "true_positives": 3,
+    "false_positives": 91,
+    "true_negatives": 2997,
+    "false_negatives": 12,
+    "predicted_anomalies": 94,
+    "actual_attack_windows": 15,
+    "false_discovery_rate": 0.9680851063829787,
+    "miss_rate": 0.8
+  },
+  "final_scenarios": [
+    {
+      "attack_type": "brute_force",
+      "detected": true,
+      "attack_windows": 1,
+      "flagged_attack_windows": 1
+    },
+    {
+      "attack_type": "password_spray",
+      "detected": true,
+      "attack_windows": 1,
+      "flagged_attack_windows": 1
+    },
+    {
+      "attack_type": "distributed_spray",
+      "detected": true,
+      "attack_windows": 1,
+      "flagged_attack_windows": 1
+    },
+    {
+      "attack_type": "slow_brute_force",
+      "detected": true,
+      "attack_windows": 7,
+      "flagged_attack_windows": 5
+    }
+  ],
+  "rules": {
+    "evaluation_unit": "rule_generated_alert",
+    "total_alerts": 5,
+    "attack_related_alerts": 5,
+    "benign_only_alerts": 0,
+    "mixed_evidence_alerts": 0,
+    "alerts_by_rule": {
+      "BRUTE_FORCE_001": 1,
+      "DISTRIBUTED_PASSWORD_SPRAY_001": 1,
+      "PASSWORD_SPRAY_001": 1,
+      "SLOW_BRUTE_FORCE_001": 1,
+      "SLOW_PASSWORD_SPRAY_001": 1
+    }
+  }
+}
